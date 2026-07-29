@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard do Editor | Plataforma de Cursos Online</title>
+
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <!-- Renderizado dinamicamente por js/components/header.js -->
+  <header class="site-header" id="site-header">
+    <div class="container">
+      <a href="catalogo.html" class="logo">EduPlay</a>
+
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="main-nav">
+        <span class="visually-hidden">Abrir menu</span>
+        ☰
+      </button>
+
+      <nav class="main-nav" id="main-nav" aria-label="Navegação principal">
+        <ul id="main-nav-list">
+          <!-- Links injetados via JS conforme o role do usuário -->
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ================= MAIN ================= -->
+  <main>
+    <div class="container">
+
+      <h1 class="page-title">Dashboard do Editor</h1>
+      <p class="page-subtitle">Gerencie cursos, aulas e categorias da plataforma.</p>
+
+      <!-- ================= ABAS ================= -->
+      <div class="tabs" role="tablist" aria-label="Áreas de gestão">
+        <button type="button" class="tab-button active" id="tab-btn-cursos" role="tab" aria-selected="true" aria-controls="tab-cursos" data-tab="cursos">
+          Cursos
+        </button>
+        <button type="button" class="tab-button" id="tab-btn-aulas" role="tab" aria-selected="false" aria-controls="tab-aulas" data-tab="aulas">
+          Aulas
+        </button>
+        <button type="button" class="tab-button" id="tab-btn-categorias" role="tab" aria-selected="false" aria-controls="tab-categorias" data-tab="categorias">
+          Categorias
+        </button>
+      </div>
+
+      <!-- ================= PAINEL: CURSOS ================= -->
+      <section class="tab-panel active" id="tab-cursos" role="tabpanel" aria-labelledby="tab-btn-cursos">
+        <div class="data-panel card">
+          <div class="panel-toolbar">
+            <div class="form-group">
+              <label for="cursos-busca" class="visually-hidden">Buscar curso</label>
+              <input type="search" id="cursos-busca" placeholder="Buscar curso..." />
+            </div>
+            <button type="button" id="curso-novo-btn" class="btn btn-primary">
+              + Novo curso
+            </button>
+          </div>
+
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <caption class="visually-hidden">Lista de cursos cadastrados</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Título</th>
+                  <th scope="col">Categoria</th>
+                  <th scope="col">Carga horária</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="cursos-table-body">
+                <!-- Linhas injetadas via JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <p id="cursos-empty" class="empty-state" hidden>Nenhum curso cadastrado.</p>
+        </div>
+      </section>
+
+      <!-- ================= PAINEL: AULAS ================= -->
+      <section class="tab-panel" id="tab-aulas" role="tabpanel" aria-labelledby="tab-btn-aulas" hidden>
+        <div class="data-panel card">
+          <div class="panel-toolbar">
+            <div class="form-group">
+              <label for="aulas-curso-filtro" class="visually-hidden">Filtrar por curso</label>
+              <select id="aulas-curso-filtro">
+                <option value="">Todos os cursos</option>
+                <!-- Opções injetadas via JS -->
+              </select>
+            </div>
+            <button type="button" id="aula-nova-btn" class="btn btn-primary">
+              + Nova aula
+            </button>
+          </div>
+
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <caption class="visually-hidden">Lista de aulas cadastradas</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Ordem</th>
+                  <th scope="col">Título</th>
+                  <th scope="col">Curso</th>
+                  <th scope="col">Duração</th>
+                  <th scope="col">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="aulas-table-body">
+                <!-- Linhas injetadas via JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <p id="aulas-empty" class="empty-state" hidden>Nenhuma aula cadastrada.</p>
+        </div>
+      </section>
+
+      <!-- ================= PAINEL: CATEGORIAS ================= -->
+      <section class="tab-panel" id="tab-categorias" role="tabpanel" aria-labelledby="tab-btn-categorias" hidden>
+        <div class="data-panel card">
+          <div class="panel-toolbar">
+            <h2 class="section-title" style="margin-bottom: 0;">Categorias</h2>
+            <button type="button" id="categoria-nova-btn" class="btn btn-primary">
+              + Nova categoria
+            </button>
+          </div>
+
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <caption class="visually-hidden">Lista de categorias cadastradas</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Nome</th>
+                  <th scope="col">Descrição</th>
+                  <th scope="col">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="categorias-table-body">
+                <!-- Linhas injetadas via JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <p id="categorias-empty" class="empty-state" hidden>Nenhuma categoria cadastrada.</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container">
+      <span>&copy; 2026 EduPlay. Todos os direitos reservados.</span>
+      <nav aria-label="Links do rodapé">
+        <a href="#">Termos de uso</a>
+        <a href="#">Privacidade</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL DE CRUD (curso / aula / categoria) ================= -->
+  <!-- Reaproveitado pelas três abas; o JS troca os campos exibidos conforme o contexto -->
+  <div class="modal-overlay" id="crud-modal" hidden>
+    <div class="card modal-card" role="dialog" aria-modal="true" aria-labelledby="crud-modal-title">
+      <div class="modal-card__header">
+        <h2 id="crud-modal-title">Novo item</h2>
+        <button type="button" class="modal-close" id="crud-modal-close" aria-label="Fechar">&times;</button>
+      </div>
+
+      <form id="crud-form" novalidate>
+        <input type="hidden" id="crud-id" name="id" />
+
+        <!-- Campos dinâmicos injetados via JS conforme a entidade (curso/aula/categoria) -->
+        <div id="crud-fields"></div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="crud-cancel-btn">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

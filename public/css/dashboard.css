@@ -1,0 +1,192 @@
+/* ============================================
+   DASHBOARD.CSS
+   Estilos compartilhados pelas páginas autenticadas
+   de gestão: perfil.html, editor.html e admin.html.
+   ============================================ */
+
+main {
+  flex: 1;
+  padding-block: var(--space-6) var(--space-8);
+}
+
+/* ---------- Layout genérico em duas colunas (perfil) ---------- */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.dashboard-section {
+  padding: var(--space-5);
+}
+
+@media (max-width: 900px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Matrículas (perfil.html) ---------- */
+.enrollment-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.enrollment-item {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.enrollment-item__info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.enrollment-item__info h3 {
+  font-size: var(--fs-sm);
+}
+
+/* ---------- Abas (editor.html) ---------- */
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-5);
+}
+
+.tab-button {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid transparent;
+  transform: translateY(1px);
+}
+
+.tab-button.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+/* ---------- Painéis de gestão (editor / admin) ---------- */
+.panel-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.panel-toolbar .form-group {
+  margin-bottom: 0;
+  min-width: 220px;
+}
+
+.data-panel {
+  padding: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+
+/* ---------- Tabelas de dados ---------- */
+.data-table-wrapper {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  font-size: var(--fs-sm);
+}
+
+.data-table caption {
+  text-align: left;
+  font-weight: 700;
+  margin-bottom: var(--space-3);
+}
+
+.data-table th,
+.data-table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.data-table thead th {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  background-color: var(--color-bg);
+}
+
+.data-table tbody tr:hover {
+  background-color: var(--color-primary-light);
+}
+
+.data-table .actions-cell {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* ---------- Formulário inline / modal de CRUD ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  z-index: 100;
+}
+
+.modal-overlay[hidden] {
+  display: none;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: var(--space-6);
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+}
+
+.modal-close {
+  font-size: var(--fs-lg);
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}

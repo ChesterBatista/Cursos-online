@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogo de Cursos | Plataforma de Cursos Online</title>
+
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/catalogo.css" />
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <!-- Conteúdo interno (links de navegação, badge de usuário) é
+       renderizado dinamicamente por js/components/header.js
+       de acordo com o role do usuário logado (aluno/editor/admin). -->
+  <header class="site-header" id="site-header">
+    <div class="container">
+      <a href="catalogo.html" class="logo">EduPlay</a>
+
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="main-nav">
+        <span class="visually-hidden">Abrir menu</span>
+        ☰
+      </button>
+
+      <nav class="main-nav" id="main-nav" aria-label="Navegação principal">
+        <ul id="main-nav-list">
+          <!-- Links injetados via JS conforme o role do usuário -->
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ================= MAIN ================= -->
+  <main>
+    <div class="container">
+
+      <div class="catalog-heading">
+        <h1 class="page-title">Catálogo de Cursos</h1>
+        <p class="page-subtitle">Explore cursos publicados por categoria e comece a aprender hoje.</p>
+      </div>
+
+      <!-- ================= FILTROS ================= -->
+      <section class="catalog-filters" aria-label="Filtros de cursos">
+        <form id="catalog-filter-form" class="filter-bar">
+          <div class="form-group filter-search">
+            <label for="filtro-busca" class="visually-hidden">Buscar curso</label>
+            <input
+              type="search"
+              id="filtro-busca"
+              name="busca"
+              placeholder="Buscar por título do curso..."
+            />
+          </div>
+
+          <div class="form-group filter-category">
+            <label for="filtro-categoria" class="visually-hidden">Categoria</label>
+            <select id="filtro-categoria" name="categoria">
+              <option value="">Todas as categorias</option>
+              <!-- Opções de categoria injetadas via JS -->
+            </select>
+          </div>
+
+          <button type="reset" id="filtro-limpar" class="btn btn-secondary">
+            Limpar filtros
+          </button>
+        </form>
+
+        <!-- Chips de categoria (atalho visual, opcional, populado via JS) -->
+        <ul class="category-chips" id="category-chips" aria-label="Atalhos de categoria"></ul>
+      </section>
+
+      <!-- ================= GRID DE CURSOS ================= -->
+      <section aria-label="Lista de cursos">
+        <div id="catalogo-grid" class="catalog-grid">
+          <!-- Cards de curso injetados via js/components/courseCard.js -->
+        </div>
+
+        <p id="catalogo-empty" class="empty-state" hidden>
+          Nenhum curso encontrado para os filtros selecionados.
+        </p>
+
+        <p id="catalogo-loading" class="loading-state">
+          Carregando cursos...
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container">
+      <span>&copy; 2026 EduPlay. Todos os direitos reservados.</span>
+      <nav aria-label="Links do rodapé">
+        <a href="#">Termos de uso</a>
+        <a href="#">Privacidade</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
