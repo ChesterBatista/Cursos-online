@@ -1,0 +1,107 @@
+{
+  "usuarios": [
+    {
+      "id": "1",
+      "nome": "Chester Administrador",
+      "email": "chester@cursosonline.com",
+      "senha": "123456",
+      "role": "admin",
+      "ativo": true
+    },
+    {
+      "id": "2",
+      "nome": "Moura Instrutor",
+      "email": "moura@cursosonline.com",
+      "senha": "123456",
+      "role": "editor",
+      "ativo": true
+    },
+    {
+      "id": "3",
+      "nome": "Ana Souza",
+      "email": "ana@cursosonline.com",
+      "senha": "123456",
+      "role": "aluno",
+      "ativo": true
+    }
+  ],
+  "categorias": [
+    {
+      "id": "1",
+      "nome": "Programação"
+    },
+    {
+      "id": "2",
+      "nome": "Design"
+    }
+  ],
+  "cursos": [
+    {
+      "id": "1",
+      "titulo": "JavaScript do Zero",
+      "descricao": "Curso introdutório de JavaScript com lógica de programação, variáveis, funções e manipulação do DOM.",
+      "categoriaId": "1",
+      "instrutorId": "2",
+      "status": "publicado",
+      "cargaHoraria": 20,
+      "imagem": "https://placehold.co/600x400?text=JavaScript"
+    },
+    {
+      "id": "2",
+      "titulo": "Fundamentos de UI Design",
+      "descricao": "Aprenda os fundamentos de interfaces, cores, tipografia, hierarquia visual e experiência do usuário.",
+      "categoriaId": "2",
+      "instrutorId": "2",
+      "status": "rascunho",
+      "cargaHoraria": 12,
+      "imagem": "https://placehold.co/600x400?text=UI+Design"
+    }
+  ],
+  "aulas": [
+    {
+      "id": "1",
+      "cursoId": "1",
+      "titulo": "Introdução ao JavaScript",
+      "descricao": "Apresentação da linguagem JavaScript e preparação do ambiente de desenvolvimento.",
+      "ordem": 1,
+      "duracaoMinutos": 35
+    },
+    {
+      "id": "2",
+      "cursoId": "1",
+      "titulo": "Variáveis e Tipos de Dados",
+      "descricao": "Estudo de variáveis, constantes, strings, números, booleanos e outros tipos de dados.",
+      "ordem": 2,
+      "duracaoMinutos": 50
+    },
+    {
+      "id": "3",
+      "cursoId": "2",
+      "titulo": "Princípios do Design de Interfaces",
+      "descricao": "Introdução aos principais conceitos utilizados na criação de interfaces digitais.",
+      "ordem": 1,
+      "duracaoMinutos": 40
+    }
+  ],
+  "matriculas": [
+    {
+      "id": "1",
+      "usuarioId": "3",
+      "cursoId": "1",
+      "progresso": 100,
+      "status": "concluído",
+      "dataMatricula": "2026-07-20",
+      "dataConclusao": "2026-07-28"
+    }
+  ],
+  "avaliacoes": [
+    {
+      "id": "1",
+      "usuarioId": "3",
+      "cursoId": "1",
+      "nota": 5,
+      "comentario": "Excelente curso para quem está começando em JavaScript. As explicações foram claras e os exemplos ajudaram bastante.",
+      "dataAvaliacao": "2026-07-28"
+    }
+  ]
+}
