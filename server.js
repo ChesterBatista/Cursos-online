@@ -9,6 +9,24 @@ const port = 3000;
 // ============================================
 
 app.use(express.json());
+
+// CORS: o frontend costuma rodar em outra origem (ex.: Live Server em
+// 127.0.0.1:5500) enquanto esta API roda em localhost:3000. Como o client
+// envia headers customizados (Authorization, X-User-Id), o navegador manda
+// um preflight OPTIONS antes de cada requisição — sem isto, o preflight
+// falha e o fetch trava com erro de rede antes mesmo de chegar nas rotas.
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-User-Id');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
@@ -51,8 +69,10 @@ function salvarDados(dados) {
 
 // Middleware para verificar token (simulado)
 function verificarAutenticacao(req, res, next) {
-  // Ignorar login
-  if (req.path === '/api/login') return next();
+  // Ignorar login. Como este middleware é montado com app.use('/api', ...),
+  // req.path já vem sem o prefixo '/api' (é relativo ao ponto de montagem) —
+  // comparar com '/api/login' aqui nunca dá match e bloqueia o próprio login.
+  if (req.path === '/login') return next();
   
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
@@ -128,22 +148,23 @@ app.get('/api/usuarios', verificarRole(['admin']), (req, res) => {
   res.json(usuarios);
 });
 
-// GET - Buscar usuário por ID (próprio usuário ou admin)
+// GET - Buscar usuário por ID (perfil completo: admin ou próprio usuário;
+// demais usuários autenticados recebem apenas dados públicos de exibição,
+// necessários para mostrar nome do instrutor de um curso ou autor de uma avaliação)
 app.get('/api/usuarios/:id', (req, res) => {
   const dados = lerDados();
   const usuario = dados.usuarios?.find(u => u.id === req.params.id);
-  
+
   if (!usuario) {
     return res.status(404).json({ erro: 'Usuário não encontrado' });
   }
-  
-  // Verificar permissão: admin ou próprio usuário
-  if (req.usuario.role !== 'admin' && req.usuario.id !== req.params.id) {
-    return res.status(403).json({ erro: 'Acesso negado' });
+
+  if (req.usuario.role === 'admin' || req.usuario.id === req.params.id) {
+    const { senha, ...usuarioSemSenha } = usuario;
+    return res.json(usuarioSemSenha);
   }
-  
-  const { senha, ...usuarioSemSenha } = usuario;
-  res.json(usuarioSemSenha);
+
+  res.json({ id: usuario.id, nome: usuario.nome, role: usuario.role });
 });
 
 // POST - Login
