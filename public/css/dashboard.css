@@ -374,6 +374,24 @@ main {
   background: #ffffff;
 }
 
+.cancel-enrollment-btn {
+  min-height: 38px;
+  margin-left: auto;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  background: #fff7f7;
+}
+
+.cancel-enrollment-btn:hover {
+  border-color: #fca5a5;
+  background: #fee2e2;
+}
+
+.cancel-enrollment-btn:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
 .profile-empty-state {
   display: flex;
   align-items: center;
@@ -1124,6 +1142,28 @@ main {
   font-weight: 700;
 }
 
+.admin-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.admin-create-button {
+  min-height: 42px;
+  border: 1px solid #315f2c;
+  border-radius: 9px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #315f2c, #477f35);
+  box-shadow: 0 7px 16px rgba(49, 95, 44, 0.18);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.admin-create-button:hover {
+  color: #ffffff;
+  background: linear-gradient(135deg, #274f23, #396f2b);
+}
+
 .admin-filter-bar {
   display: grid;
   grid-template-columns: minmax(240px, 1.5fr) minmax(150px, 0.65fr) minmax(140px, 0.55fr) auto;
@@ -1274,6 +1314,36 @@ main {
   background: #dcfce7;
 }
 
+.admin-row-edit {
+  border: 1px solid #cbdac6;
+  color: #315f2c;
+  background: #ffffff;
+}
+
+.admin-row-edit:hover {
+  background: #edf5e9;
+}
+
+.admin-row-delete {
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  background: #fff7f7;
+}
+
+.admin-row-delete:hover {
+  background: #fee2e2;
+}
+
+.admin-modal-eyebrow {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: #5b7d54;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .admin-users-panel .empty-state {
   margin: var(--space-5);
 }
@@ -1300,6 +1370,12 @@ main {
 
   .admin-panel-heading {
     align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-heading-actions {
+    align-items: stretch;
+    width: 100%;
     flex-direction: column;
   }
 

@@ -6,6 +6,7 @@ import { request } from './http.js';
 
 export const cursosAPI = {
   listar: () => request('/cursos'),
+  listarGerenciados: () => request('/editor/cursos'),
   buscar: (id) => request(`/cursos/${id}`),
   criar: (dados) => request('/cursos', 'POST', dados),
   atualizar: (id, dados) => request(`/cursos/${id}`, 'PUT', dados),

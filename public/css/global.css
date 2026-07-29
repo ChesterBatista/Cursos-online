@@ -506,6 +506,79 @@ legend {
   display: none;
 }
 
+/* ---------- SweetAlert2 / mensagens do sistema ---------- */
+.swal2-container {
+  font-family: var(--font-base);
+  backdrop-filter: blur(3px);
+}
+
+.mc-swal-popup {
+  width: min(92vw, 430px);
+  padding: 1.75rem;
+  border: 1px solid rgba(49, 95, 44, 0.14);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(20, 50, 27, 0.2);
+}
+
+.mc-swal-title {
+  color: #244d25;
+  font-size: 1.45rem;
+  letter-spacing: -0.02em;
+}
+
+.mc-swal-text {
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.mc-swal-confirm,
+.mc-swal-cancel {
+  min-height: 42px;
+  padding-inline: 1.15rem;
+  border: 0;
+  border-radius: 9px;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  box-shadow: none !important;
+}
+
+.mc-swal-confirm:focus-visible,
+.mc-swal-cancel:focus-visible {
+  outline: 3px solid rgba(49, 95, 44, 0.2);
+  outline-offset: 2px;
+}
+
+.swal2-timer-progress-bar {
+  background: linear-gradient(90deg, #315f2c, #84a83e);
+}
+
+.mc-swal-toast {
+  border: 1px solid rgba(49, 95, 44, 0.14);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(20, 50, 27, 0.16);
+  font-family: var(--font-base);
+}
+
+.swal2-icon.swal2-success {
+  border-color: #86b77b;
+  color: #315f2c;
+}
+
+.swal2-icon.swal2-success [class^="swal2-success-line"] {
+  background-color: #477f35;
+}
+
+.swal2-icon.swal2-warning {
+  border-color: #f2c66d;
+  color: #b7791f;
+}
+
+.swal2-icon.swal2-error {
+  border-color: #ef9a9a;
+  color: #b91c1c;
+}
+
 /* ---------- Estados vazios / loading ---------- */
 .empty-state,
 .loading-state {

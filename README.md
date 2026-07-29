@@ -1,6 +1,6 @@
 # 🎓 Plataforma de Cursos Online
 
-Plataforma web para gerenciamento e consumo de cursos online, desenvolvida com **HTML5, CSS3, JavaScript Vanilla, Node.js e JSON Server**.
+Plataforma web para gerenciamento e consumo de cursos online, desenvolvida com **HTML5, CSS3, JavaScript Vanilla, Node.js, Express e JSON Server**.
 
 O sistema permite que alunos visualizem cursos, realizem matrículas, acompanhem seu progresso e publiquem avaliações. Editores podem gerenciar conteúdos educacionais, enquanto administradores possuem controle completo sobre os usuários e os demais recursos da plataforma.
 
@@ -62,17 +62,32 @@ O sistema possui:
 - JavaScript ES Modules;
 - Fetch API;
 - Async/Await;
-- Session Storage;
+- Local Storage;
 - manipulação do DOM;
 - layout responsivo.
 
 ### Backend simulado
 
 - Node.js;
-- JSON Server;
+- JSON Server em modo programático (`jsonServer.create`);
+- Express, utilizado pela base do JSON Server e pelos arquivos estáticos;
 - middlewares personalizados;
 - API REST;
 - arquivo JSON como banco de dados.
+
+### Autenticação e autorização simuladas
+
+O JSON Server não oferece autenticação ou autorização nativas. Neste projeto, o login gera um token simulado e mantém a sessão no `localStorage`. O frontend oculta rotas e ações incompatíveis com o role ativo, mas essa proteção visual não é considerada uma barreira de segurança.
+
+Para tornar o exercício verificável e impedir alterações diretas indevidas, o servidor também aplica middlewares personalizados de autenticação, autorização por role e validação de dados antes de persistir no `data/db.json`.
+
+Os três roles aceitos são:
+
+- `aluno`: consulta cursos publicados, gerencia a própria matrícula e avalia cursos concluídos;
+- `editor`: gerencia somente os cursos e aulas sob sua responsabilidade e consulta o engajamento desses cursos;
+- `admin`: gerencia usuários, roles, status e todos os conteúdos da plataforma.
+
+Embora o administrador tenha acesso total aos recursos, uma matrícula continua exigindo um usuário com `role: aluno`, conforme a validação obrigatória do enunciado.
 
 ### Ferramentas
 

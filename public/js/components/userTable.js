@@ -48,6 +48,12 @@ function criarLinhaUsuario(usuario) {
         <button type="button" class="btn btn-sm toggle-status-btn admin-action ${acaoClasse}" data-id="${usuario.id}">
           ${acaoLabel}
         </button>
+        <button type="button" class="btn btn-sm edit-user-btn admin-row-edit" data-id="${usuario.id}">
+          Editar
+        </button>
+        <button type="button" class="btn btn-sm delete-user-btn admin-row-delete" data-id="${usuario.id}">
+          Excluir
+        </button>
       </td>
     </tr>
   `;

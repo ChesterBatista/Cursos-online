@@ -68,7 +68,12 @@
             <h2 class="section-title" id="users-title">Usuários</h2>
             <p>Gerencie roles e disponibilidade das contas.</p>
           </div>
-          <span class="results-count" id="user-results-count">0 resultados</span>
+          <div class="admin-heading-actions">
+            <span class="results-count" id="user-results-count">0 resultados</span>
+            <button type="button" class="btn admin-create-button" id="user-new-button">
+              + Novo usuário
+            </button>
+          </div>
         </div>
 
         <div class="panel-toolbar admin-filter-bar">
@@ -152,6 +157,62 @@
       </nav>
     </div>
   </footer>
+
+  <div class="modal-overlay" id="user-modal" hidden>
+    <div class="card modal-card" role="dialog" aria-modal="true" aria-labelledby="user-modal-title">
+      <div class="modal-card__header">
+        <div>
+          <span class="admin-modal-eyebrow">Gestão de acesso</span>
+          <h2 id="user-modal-title">Novo usuário</h2>
+        </div>
+        <button type="button" class="modal-close" id="user-modal-close" aria-label="Fechar">&times;</button>
+      </div>
+
+      <form id="user-form" novalidate>
+        <input type="hidden" id="user-form-id" />
+
+        <div class="form-group">
+          <label for="user-form-name">Nome completo</label>
+          <input type="text" id="user-form-name" minlength="3" required />
+        </div>
+
+        <div class="form-group">
+          <label for="user-form-email">E-mail</label>
+          <input type="email" id="user-form-email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="user-form-password">Senha</label>
+          <input type="password" id="user-form-password" minlength="6" autocomplete="new-password" />
+          <span class="form-hint" id="user-password-hint">Mínimo de 6 caracteres.</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="user-form-role">Perfil de acesso</label>
+            <select id="user-form-role" required>
+              <option value="aluno">Aluno</option>
+              <option value="editor">Editor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="user-form-active">Status da conta</label>
+            <select id="user-form-active" required>
+              <option value="true">Ativa</option>
+              <option value="false">Inativa</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="user-modal-cancel">Cancelar</button>
+          <button type="submit" class="btn admin-create-button" id="user-form-submit">Salvar usuário</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script type="module" src="js/main.js"></script>
 </body>

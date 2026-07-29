@@ -16,6 +16,13 @@ import { criarCourseCard } from './components/courseCard.js';
 import { criarLinhasUsuarios } from './components/userTable.js';
 import * as permissoes from './utils/permissions.js';
 import {
+  confirmarAcao,
+  mostrarErro,
+  mostrarSucesso,
+  mostrarAviso,
+  mostrarToast,
+} from './utils/alerts.js';
+import {
   validarNome,
   validarEmail,
   validarSenha,
@@ -166,12 +173,14 @@ function redirecionarPorRole() {
 function exibirErroLogin(mensagem) {
   const alertaLogin = document.getElementById('login-alert');
 
-  if (!alertaLogin) {
-    return;
+  if (alertaLogin) {
+    alertaLogin.hidden = true;
   }
 
-  alertaLogin.textContent = mensagem || 'Não foi possível fazer login. Tente novamente.';
-  alertaLogin.hidden = false;
+  mostrarErro(
+    mensagem || 'Não foi possível fazer login. Tente novamente.',
+    'Não foi possível entrar'
+  );
 }
 
 function exibirErroCampo(id, mensagem) {
@@ -486,8 +495,9 @@ async function matricularUsuario(usuarioId, cursoId, enrollButton, progressoWrap
       reviewSection.hidden = false;
       configurarFormularioAvaliacao(usuarioId, cursoId);
     }
+    mostrarSucesso('Sua matrícula foi confirmada. Bons estudos!', 'Matrícula realizada!');
   } catch (error) {
-    window.alert(error.message || 'Não foi possível concluir a matrícula.');
+    mostrarErro(error.message || 'Não foi possível concluir a matrícula.');
     enrollButton.disabled = false;
     enrollButton.textContent = textoOriginal;
   }
@@ -511,10 +521,11 @@ function configurarFormularioAvaliacao(usuarioId, cursoId) {
 
     try {
       await avaliacoesAPI.criar({ usuarioId, cursoId, nota, comentario });
-      exibirAlerta(alerta, 'Avaliação enviada com sucesso!', false);
+      alerta.hidden = true;
+      mostrarSucesso('Sua avaliação foi enviada.', 'Obrigado pela avaliação!');
       form.reset();
     } catch (error) {
-      exibirAlerta(alerta, error.message || 'Não foi possível enviar sua avaliação.', true);
+      mostrarErro(error.message || 'Não foi possível enviar sua avaliação.');
     }
   });
 }
@@ -590,7 +601,8 @@ async function tratarAtualizarPerfil(evento) {
   try {
     const usuarioAtualizado = await usuariosAPI.atualizar(usuario.id, dados);
     auth.setUsuario({ ...usuario, ...usuarioAtualizado }, auth.getToken());
-    exibirAlerta(alerta, 'Dados atualizados com sucesso!', false);
+    alerta.hidden = true;
+    mostrarToast('Perfil atualizado com sucesso');
     document.getElementById('profile-hero-name').textContent = usuarioAtualizado.nome;
     document.getElementById('profile-hero-avatar').textContent = usuarioAtualizado.nome
       .split(' ')
@@ -603,7 +615,7 @@ async function tratarAtualizarPerfil(evento) {
     document.getElementById('profile-senha-nova').value = '';
     document.getElementById('profile-senha-confirmar').value = '';
   } catch (error) {
-    exibirAlerta(alerta, error.message || 'Não foi possível atualizar seus dados.', true);
+    mostrarErro(error.message || 'Não foi possível atualizar seus dados.');
   }
 }
 
@@ -631,7 +643,7 @@ async function carregarMatriculas(usuarioId) {
     }
 
     lista.innerHTML = html;
-    configurarBotoesProgresso(usuarioId);
+    configurarAcoesMatricula(usuarioId);
   } catch (error) {
     vazio.textContent = 'Não foi possível carregar suas matrículas.';
     vazio.hidden = false;
@@ -646,6 +658,9 @@ function criarItemMatricula(matricula, curso) {
   const botaoProgresso = matricula.status === 'concluído'
     ? ''
     : `<button type="button" class="btn btn-secondary btn-sm progress-btn" data-matricula-id="${matricula.id}" data-progresso="${matricula.progresso}">+25% progresso</button>`;
+  const botaoCancelar = matricula.status === 'concluído'
+    ? ''
+    : `<button type="button" class="btn btn-sm cancel-enrollment-btn" data-matricula-id="${matricula.id}" data-curso-titulo="${curso.titulo}">Cancelar matrícula</button>`;
 
   return `
     <li class="enrollment-item">
@@ -668,12 +683,13 @@ function criarItemMatricula(matricula, curso) {
       <div class="actions-cell enrollment-actions">
         <a href="curso.html?id=${curso.id}" class="btn enrollment-primary-action">Continuar curso <span aria-hidden="true">→</span></a>
         ${botaoProgresso}
+        ${botaoCancelar}
       </div>
     </li>
   `;
 }
 
-function configurarBotoesProgresso(usuarioId) {
+function configurarAcoesMatricula(usuarioId) {
   const botoes = document.querySelectorAll('.progress-btn');
 
   for (const botao of botoes) {
@@ -685,8 +701,40 @@ function configurarBotoesProgresso(usuarioId) {
       try {
         await matriculasAPI.atualizar(matriculaId, { progresso: novoProgresso });
         carregarMatriculas(usuarioId);
+        mostrarToast(`Progresso atualizado para ${novoProgresso}%`);
       } catch (error) {
-        window.alert(error.message || 'Não foi possível atualizar o progresso.');
+        mostrarErro(error.message || 'Não foi possível atualizar o progresso.');
+      }
+    });
+  }
+
+  const botoesCancelar = document.querySelectorAll('.cancel-enrollment-btn');
+
+  for (const botao of botoesCancelar) {
+    botao.addEventListener('click', async () => {
+      const confirmado = await confirmarAcao({
+        titulo: 'Cancelar esta matrícula?',
+        mensagem: `Seu progresso em "${botao.dataset.cursoTitulo}" será removido. Essa ação não poderá ser desfeita.`,
+        textoConfirmar: 'Sim, cancelar',
+        perigosa: true,
+      });
+
+      if (!confirmado) {
+        return;
+      }
+
+      botao.disabled = true;
+
+      try {
+        await matriculasAPI.deletar(botao.dataset.matriculaId);
+        await carregarMatriculas(usuarioId);
+        mostrarSucesso(
+          'A matrícula foi cancelada e o vínculo com o curso foi removido.',
+          'Matrícula cancelada'
+        );
+      } catch (error) {
+        botao.disabled = false;
+        mostrarErro(error.message || 'Não foi possível cancelar a matrícula.');
       }
     });
   }
@@ -709,11 +757,10 @@ async function configurarAdmin() {
   const filtroRole = document.getElementById('user-filtro-role');
   const filtroStatus = document.getElementById('user-filtro-status');
   const limparFiltros = document.getElementById('user-filter-clear');
+  const novoUsuario = document.getElementById('user-new-button');
 
   try {
-    todosUsuariosAdmin = await usuariosAPI.listar();
-    atualizarResumoAdmin();
-    renderizarUsuarios(todosUsuariosAdmin);
+    await recarregarUsuariosAdmin();
   } catch (error) {
     vazio.textContent = 'Não foi possível carregar os usuários.';
     vazio.hidden = false;
@@ -743,6 +790,7 @@ async function configurarAdmin() {
   busca.addEventListener('input', aplicarFiltros);
   filtroRole.addEventListener('change', aplicarFiltros);
   filtroStatus.addEventListener('change', aplicarFiltros);
+  novoUsuario.addEventListener('click', () => abrirModalUsuario());
   limparFiltros.addEventListener('click', () => {
     busca.value = '';
     filtroRole.value = '';
@@ -751,7 +799,14 @@ async function configurarAdmin() {
     busca.focus();
   });
   tbody.addEventListener('change', tratarMudancaRole);
-  tbody.addEventListener('click', tratarToggleStatus);
+  tbody.addEventListener('click', tratarAcoesUsuarioAdmin);
+  configurarModalUsuario();
+}
+
+async function recarregarUsuariosAdmin() {
+  todosUsuariosAdmin = await usuariosAPI.listar();
+  atualizarResumoAdmin();
+  renderizarUsuarios(todosUsuariosAdmin);
 }
 
 function renderizarUsuarios(usuarios) {
@@ -799,8 +854,9 @@ async function tratarMudancaRole(evento) {
       atualizarResumoAdmin();
       document.getElementById('user-busca').dispatchEvent(new Event('input'));
     }
+    mostrarToast('Perfil de acesso atualizado');
   } catch (error) {
-    window.alert(error.message || 'Não foi possível alterar o role.');
+    mostrarErro(error.message || 'Não foi possível alterar o perfil do usuário.');
     renderizarUsuarios(todosUsuariosAdmin);
   }
 }
@@ -824,8 +880,9 @@ async function tratarToggleStatus(evento) {
     usuario.ativo = !usuario.ativo;
     atualizarResumoAdmin();
     document.getElementById('user-busca').dispatchEvent(new Event('input'));
+    mostrarToast(usuario.ativo ? 'Usuário ativado' : 'Usuário desativado');
   } catch (error) {
-    window.alert(error.message || 'Não foi possível alterar o status.');
+    mostrarErro(error.message || 'Não foi possível alterar o status.');
   }
 }
 
@@ -853,7 +910,7 @@ async function configurarEditor() {
   try {
     await recarregarDadosEditor();
   } catch (error) {
-    window.alert('Não foi possível carregar os dados do dashboard.');
+    mostrarErro('Não foi possível carregar os dados do dashboard.');
   }
 
   document.getElementById('cursos-busca').addEventListener('input', (evento) => {
@@ -889,9 +946,9 @@ async function configurarEditor() {
 
 async function recarregarDadosEditor() {
   const [cursos, categorias, aulas, matriculas, avaliacoes] = await Promise.all([
-    cursosAPI.listar(),
+    cursosAPI.listarGerenciados(),
     categoriasAPI.listar(),
-    aulasAPI.listar(),
+    aulasAPI.listarGerenciadas(),
     matriculasAPI.listar(),
     avaliacoesAPI.listar(),
   ]);
@@ -907,6 +964,129 @@ async function recarregarDadosEditor() {
   renderizarCategoriasEditor(categoriasEditor);
   popularFiltroAulas();
   renderizarAulasEditor(aulasEditor);
+}
+
+function tratarAcoesUsuarioAdmin(evento) {
+  const editar = evento.target.closest('.edit-user-btn');
+  const excluir = evento.target.closest('.delete-user-btn');
+
+  if (editar) {
+    const usuario = buscarPorId(todosUsuariosAdmin, editar.dataset.id);
+    if (usuario) {
+      abrirModalUsuario(usuario);
+    }
+    return;
+  }
+
+  if (excluir) {
+    excluirUsuarioAdmin(excluir.dataset.id);
+    return;
+  }
+
+  tratarToggleStatus(evento);
+}
+
+function configurarModalUsuario() {
+  const modal = document.getElementById('user-modal');
+  document.getElementById('user-modal-close').addEventListener('click', fecharModalUsuario);
+  document.getElementById('user-modal-cancel').addEventListener('click', fecharModalUsuario);
+  document.getElementById('user-form').addEventListener('submit', salvarUsuarioAdmin);
+
+  modal.addEventListener('click', evento => {
+    if (evento.target === modal) {
+      fecharModalUsuario();
+    }
+  });
+}
+
+function abrirModalUsuario(usuario = null) {
+  const editando = Boolean(usuario);
+  document.getElementById('user-modal-title').textContent = editando ? 'Editar usuário' : 'Novo usuário';
+  document.getElementById('user-form-id').value = usuario?.id || '';
+  document.getElementById('user-form-name').value = usuario?.nome || '';
+  document.getElementById('user-form-email').value = usuario?.email || '';
+  document.getElementById('user-form-password').value = '';
+  document.getElementById('user-form-role').value = usuario?.role || 'aluno';
+  document.getElementById('user-form-active').value = String(usuario?.ativo ?? true);
+  document.getElementById('user-password-hint').textContent = editando
+    ? 'Deixe em branco para manter a senha atual.'
+    : 'Mínimo de 6 caracteres.';
+  document.getElementById('user-form-password').required = !editando;
+  document.getElementById('user-form-submit').textContent = editando ? 'Salvar alterações' : 'Criar usuário';
+  document.getElementById('user-modal').hidden = false;
+  document.getElementById('user-form-name').focus();
+}
+
+function fecharModalUsuario() {
+  document.getElementById('user-modal').hidden = true;
+  document.getElementById('user-form').reset();
+}
+
+async function salvarUsuarioAdmin(evento) {
+  evento.preventDefault();
+
+  const id = document.getElementById('user-form-id').value;
+  const nome = document.getElementById('user-form-name').value.trim();
+  const email = document.getElementById('user-form-email').value.trim();
+  const senha = document.getElementById('user-form-password').value;
+  const role = document.getElementById('user-form-role').value;
+  const ativo = document.getElementById('user-form-active').value === 'true';
+  const erro = validarNome(nome) || validarEmail(email) || (senha ? validarSenha(senha) : null);
+
+  if (erro || (!id && !senha)) {
+    mostrarAviso(erro || 'Informe uma senha com pelo menos 6 caracteres.', 'Revise os dados');
+    return;
+  }
+
+  const dados = { nome, email, role, ativo };
+  if (senha) {
+    dados.senha = senha;
+  }
+
+  try {
+    if (id) {
+      await usuariosAPI.atualizar(id, dados);
+    } else {
+      await usuariosAPI.criar(dados);
+    }
+
+    fecharModalUsuario();
+    await recarregarUsuariosAdmin();
+    mostrarToast(id ? 'Usuário atualizado com sucesso' : 'Usuário criado com sucesso');
+  } catch (error) {
+    mostrarErro(error.message || 'Não foi possível salvar o usuário.');
+  }
+}
+
+async function excluirUsuarioAdmin(id) {
+  const usuario = buscarPorId(todosUsuariosAdmin, id);
+  if (!usuario) {
+    return;
+  }
+
+  if (auth.getUsuario()?.id === id) {
+    mostrarAviso('Você não pode excluir a conta que está usando nesta sessão.');
+    return;
+  }
+
+  const confirmado = await confirmarAcao({
+    titulo: `Excluir ${usuario.nome}?`,
+    mensagem: 'A exclusão só será permitida se o usuário não possuir cursos, matrículas ou avaliações vinculadas.',
+    textoConfirmar: 'Sim, excluir',
+    perigosa: true,
+  });
+
+  if (!confirmado) {
+    return;
+  }
+
+  try {
+    await usuariosAPI.deletar(id);
+    await recarregarUsuariosAdmin();
+    mostrarSucesso('O usuário foi removido da plataforma.');
+  } catch (error) {
+    mostrarErro(error.message || 'Não foi possível excluir o usuário.');
+  }
 }
 
 function atualizarResumoEditor() {
@@ -1123,7 +1303,14 @@ function tratarEditar(tipo, id) {
 }
 
 async function tratarExcluir(tipo, id) {
-  if (!window.confirm('Tem certeza que deseja excluir este item?')) {
+  const confirmado = await confirmarAcao({
+    titulo: 'Excluir este item?',
+    mensagem: 'Essa ação não poderá ser desfeita.',
+    textoConfirmar: 'Sim, excluir',
+    perigosa: true,
+  });
+
+  if (!confirmado) {
     return;
   }
 
@@ -1136,8 +1323,9 @@ async function tratarExcluir(tipo, id) {
       await categoriasAPI.deletar(id);
     }
     await recarregarDadosEditor();
+    mostrarSucesso('O item foi removido do sistema.');
   } catch (error) {
-    window.alert(error.message || 'Não foi possível excluir.');
+    mostrarErro(error.message || 'Não foi possível excluir.');
   }
 }
 
@@ -1291,7 +1479,7 @@ async function tratarSubmitCrud(evento) {
   const erroValidacao = validarDadosCrud(crudTipoAtual, dados);
 
   if (erroValidacao) {
-    window.alert(erroValidacao);
+    mostrarAviso(erroValidacao, 'Revise os dados');
     return;
   }
 
@@ -1306,8 +1494,9 @@ async function tratarSubmitCrud(evento) {
 
     fecharModalCrud();
     await recarregarDadosEditor();
+    mostrarToast(id ? 'Alterações salvas com sucesso' : 'Item criado com sucesso');
   } catch (error) {
-    window.alert(error.message || 'Não foi possível salvar.');
+    mostrarErro(error.message || 'Não foi possível salvar.');
   }
 }
 

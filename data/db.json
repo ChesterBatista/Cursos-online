@@ -88,7 +88,7 @@
       "descricao": "Aprenda os fundamentos de experiência do usuário e design de interfaces.",
       "categoriaId": "cat2y3",
       "instrutorId": "u2c4d5",
-      "status": "rascunho",
+      "status": "publicado",
       "cargaHoraria": 15
     },
     {
@@ -111,21 +111,12 @@
     },
     {
       "id": "cur6t8",
-      "titulo": "Inglês para TI",
-      "descricao": "Curso de inglês focado em termos técnicos da área de tecnologia.",
+      "titulo": "Inglês para Devs",
+      "descricao": "Domine o inglês técnico e impulsione sua carreira na tecnologia hoje mesmo!",
       "categoriaId": "cat4w5",
       "instrutorId": "u3e6f7",
-      "status": "rascunho",
+      "status": "publicado",
       "cargaHoraria": 30
-    },
-    {
-      "id": "cur1785345843202jw4s",
-      "titulo": "Impressora",
-      "descricao": "salve ",
-      "categoriaId": "cat1x2",
-      "instrutorId": "u3e6f7",
-      "status": "rascunho",
-      "cargaHoraria": 50
     }
   ],
   "aulas": [
@@ -252,10 +243,10 @@
       "status": "em andamento"
     },
     {
-      "id": "mat1785345999335e6f5",
-      "usuarioId": "u1a2b3",
-      "cursoId": "cur1785345843202jw4s",
-      "dataMatricula": "2026-07-29T17:26:39.335Z",
+      "id": "mat17853542312701qn3",
+      "usuarioId": "u4g8h9",
+      "cursoId": "cur6t8",
+      "dataMatricula": "2026-07-29T19:43:51.270Z",
       "progresso": 0,
       "status": "em andamento"
     }

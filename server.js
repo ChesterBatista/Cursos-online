@@ -1,14 +1,15 @@
 const express = require('express');
+const jsonServer = require('json-server');
 const fs = require('fs');
 const path = require('path');
-const app = express();
+const app = jsonServer.create();
 const port = Number(process.env.PORT) || 3000;
 
 // ============================================
 // MIDDLEWARES GLOBAIS
 // ============================================
 
-app.use(express.json());
+app.use(jsonServer.bodyParser);
 
 // CORS: o frontend costuma rodar em outra origem (ex.: Live Server em
 // 127.0.0.1:5500) enquanto esta API roda em localhost:3000. Como o client
@@ -131,6 +132,24 @@ function validarCampos(campos) {
   };
 }
 
+const ROLES_VALIDAS = ['aluno', 'editor', 'admin'];
+const STATUS_CURSO_VALIDOS = ['rascunho', 'publicado'];
+const STATUS_MATRICULA_VALIDOS = ['em andamento', 'concluído'];
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function textoValido(valor, minimo = 1) {
+  return typeof valor === 'string' && valor.trim().length >= minimo;
+}
+
+function numeroPositivo(valor) {
+  return typeof valor === 'number' && Number.isFinite(valor) && valor > 0;
+}
+
+function editorGerenciaCurso(usuario, curso) {
+  return usuario.role === 'admin'
+    || (usuario.role === 'editor' && curso?.instrutorId === usuario.id);
+}
+
 // Aplicar middleware de autenticação em todas as rotas /api (exceto login)
 app.use('/api', verificarAutenticacao);
 
@@ -200,27 +219,36 @@ app.post('/api/usuarios',
     const { nome, email, senha, role, ativo = true } = req.body;
     
     // Validações
-    if (nome.length < 3) {
+    if (!textoValido(nome, 3)) {
       return res.status(400).json({ erro: 'Nome deve ter no mínimo 3 caracteres' });
     }
-    
-    if (senha.length < 6) {
+
+    if (!EMAIL_REGEX.test(email)) {
+      return res.status(400).json({ erro: 'Email inválido' });
+    }
+
+    if (!textoValido(senha, 6)) {
       return res.status(400).json({ erro: 'Senha deve ter no mínimo 6 caracteres' });
     }
-    
-    if (!['aluno', 'editor', 'admin'].includes(role)) {
+
+    if (!ROLES_VALIDAS.includes(role)) {
       return res.status(400).json({ erro: 'Role deve ser aluno, editor ou admin' });
     }
+
+    if (typeof ativo !== 'boolean') {
+      return res.status(400).json({ erro: 'Ativo deve ser um valor booleano' });
+    }
     
-    const emailExiste = dados.usuarios?.some(u => u.email === email);
+    const emailNormalizado = email.trim().toLowerCase();
+    const emailExiste = dados.usuarios?.some(u => u.email.toLowerCase() === emailNormalizado);
     if (emailExiste) {
       return res.status(400).json({ erro: 'Email já cadastrado' });
     }
     
     const novoUsuario = {
       id: 'u' + Date.now() + Math.random().toString(36).substr(2, 4),
-      nome,
-      email,
+      nome: nome.trim(),
+      email: emailNormalizado,
       senha,
       role,
       ativo
@@ -255,12 +283,34 @@ app.put('/api/usuarios/:id', (req, res) => {
   if (req.usuario.role !== 'admin') {
     delete req.body.role;
     delete req.body.ativo;
+    delete req.body.email;
   }
-  
+
+  if (req.body.nome !== undefined && !textoValido(req.body.nome, 3)) {
+    return res.status(400).json({ erro: 'Nome deve ter no mínimo 3 caracteres' });
+  }
+
+  if (req.body.senha !== undefined && !textoValido(req.body.senha, 6)) {
+    return res.status(400).json({ erro: 'Senha deve ter no mínimo 6 caracteres' });
+  }
+
+  if (req.body.role !== undefined && !ROLES_VALIDAS.includes(req.body.role)) {
+    return res.status(400).json({ erro: 'Role deve ser aluno, editor ou admin' });
+  }
+
+  if (req.body.ativo !== undefined && typeof req.body.ativo !== 'boolean') {
+    return res.status(400).json({ erro: 'Ativo deve ser um valor booleano' });
+  }
+
   // Validar email único se estiver atualizando
   if (req.body.email && req.body.email !== usuarioExistente.email) {
+    req.body.email = req.body.email.trim().toLowerCase();
+    if (!EMAIL_REGEX.test(req.body.email)) {
+      return res.status(400).json({ erro: 'Email inválido' });
+    }
+
     const emailExiste = dados.usuarios?.some(u => 
-      u.email === req.body.email && u.id !== req.params.id
+      u.email.toLowerCase() === req.body.email && u.id !== req.params.id
     );
     if (emailExiste) {
       return res.status(400).json({ erro: 'Email já cadastrado' });
@@ -277,6 +327,22 @@ app.put('/api/usuarios/:id', (req, res) => {
 // DELETE - Remover usuário (apenas admin)
 app.delete('/api/usuarios/:id', verificarRole(['admin']), (req, res) => {
   const dados = lerDados();
+
+  const usuario = dados.usuarios?.find(u => u.id === req.params.id);
+  if (!usuario) {
+    return res.status(404).json({ erro: 'Usuário não encontrado' });
+  }
+
+  const possuiVinculos = dados.matriculas?.some(m => m.usuarioId === req.params.id)
+    || dados.avaliacoes?.some(a => a.usuarioId === req.params.id)
+    || dados.cursos?.some(c => c.instrutorId === req.params.id);
+
+  if (possuiVinculos) {
+    return res.status(400).json({
+      erro: 'Não é possível excluir um usuário com cursos, matrículas ou avaliações vinculadas'
+    });
+  }
+
   dados.usuarios = dados.usuarios?.filter(u => u.id !== req.params.id) || [];
   salvarDados(dados);
   res.status(204).send();
@@ -309,15 +375,22 @@ app.post('/api/categorias',
   (req, res) => {
     const dados = lerDados();
     const { nome, descricao } = req.body;
-    
-    const nomeExiste = dados.categorias?.some(c => c.nome === nome);
+
+    if (!textoValido(nome)) {
+      return res.status(400).json({ erro: 'Nome da categoria é obrigatório' });
+    }
+
+    const nomeNormalizado = nome.trim();
+    const nomeExiste = dados.categorias?.some(
+      c => c.nome.toLowerCase() === nomeNormalizado.toLowerCase()
+    );
     if (nomeExiste) {
       return res.status(400).json({ erro: 'Categoria já existe' });
     }
     
     const novaCategoria = {
       id: 'cat' + Date.now() + Math.random().toString(36).substr(2, 4),
-      nome,
+      nome: nomeNormalizado,
       descricao: descricao || ''
     };
     
@@ -340,9 +413,14 @@ app.put('/api/categorias/:id',
     }
     
     // Validar nome único
-    if (req.body.nome) {
+    if (req.body.nome !== undefined) {
+      if (!textoValido(req.body.nome)) {
+        return res.status(400).json({ erro: 'Nome da categoria é obrigatório' });
+      }
+
+      req.body.nome = req.body.nome.trim();
       const nomeExiste = dados.categorias?.some(c => 
-        c.nome === req.body.nome && c.id !== req.params.id
+        c.nome.toLowerCase() === req.body.nome.toLowerCase() && c.id !== req.params.id
       );
       if (nomeExiste) {
         return res.status(400).json({ erro: 'Categoria já existe' });
@@ -384,13 +462,22 @@ app.get('/api/categorias/:categoriaId/cursos', (req, res) => {
   if (req.usuario.role === 'aluno') {
     cursos = cursos.filter(c => c.status === 'publicado');
   }
-  
+
   res.json(cursos);
 });
 
 // ============================================
 // ENDPOINTS - CURSOS
 // ============================================
+
+// GET - Cursos que o editor autenticado pode gerenciar
+app.get('/api/editor/cursos', verificarRole(['editor', 'admin']), (req, res) => {
+  const dados = lerDados();
+  const cursos = req.usuario.role === 'admin'
+    ? (dados.cursos || [])
+    : (dados.cursos || []).filter(c => c.instrutorId === req.usuario.id);
+  res.json(cursos);
+});
 
 // GET - Listar cursos (todos autenticados)
 app.get('/api/cursos', (req, res) => {
@@ -431,15 +518,15 @@ app.post('/api/cursos',
     const { titulo, descricao, categoriaId, instrutorId, status, cargaHoraria } = req.body;
     
     // Validações
-    if (titulo.length < 5) {
+    if (!textoValido(titulo, 5)) {
       return res.status(400).json({ erro: 'Título deve ter no mínimo 5 caracteres' });
     }
-    
-    if (!['rascunho', 'publicado'].includes(status)) {
+
+    if (!STATUS_CURSO_VALIDOS.includes(status)) {
       return res.status(400).json({ erro: 'Status deve ser rascunho ou publicado' });
     }
-    
-    if (cargaHoraria <= 0) {
+
+    if (!numeroPositivo(cargaHoraria)) {
       return res.status(400).json({ erro: 'Carga horária deve ser positiva' });
     }
     
@@ -459,10 +546,14 @@ app.post('/api/cursos',
         erro: 'Instrutor deve ter role editor ou admin' 
       });
     }
+
+    if (req.usuario.role === 'editor' && instrutorId !== req.usuario.id) {
+      return res.status(403).json({ erro: 'Editor só pode criar cursos sob sua própria gestão' });
+    }
     
     const novoCurso = {
       id: 'cur' + Date.now() + Math.random().toString(36).substr(2, 4),
-      titulo,
+      titulo: titulo.trim(),
       descricao: descricao || '',
       categoriaId,
       instrutorId,
@@ -487,17 +578,25 @@ app.put('/api/cursos/:id',
     if (index === -1 || index === undefined) {
       return res.status(404).json({ erro: 'Curso não encontrado' });
     }
-    
-    // Validações
-    if (req.body.titulo && req.body.titulo.length < 5) {
-      return res.status(400).json({ erro: 'Título deve ter no mínimo 5 caracteres' });
+
+    const cursoExistente = dados.cursos[index];
+    if (!editorGerenciaCurso(req.usuario, cursoExistente)) {
+      return res.status(403).json({ erro: 'Editor só pode alterar cursos que gerencia' });
     }
-    
-    if (req.body.status && !['rascunho', 'publicado'].includes(req.body.status)) {
+
+    // Validações
+    if (req.body.titulo !== undefined) {
+      if (!textoValido(req.body.titulo, 5)) {
+        return res.status(400).json({ erro: 'Título deve ter no mínimo 5 caracteres' });
+      }
+      req.body.titulo = req.body.titulo.trim();
+    }
+
+    if (req.body.status !== undefined && !STATUS_CURSO_VALIDOS.includes(req.body.status)) {
       return res.status(400).json({ erro: 'Status deve ser rascunho ou publicado' });
     }
-    
-    if (req.body.cargaHoraria && req.body.cargaHoraria <= 0) {
+
+    if (req.body.cargaHoraria !== undefined && !numeroPositivo(req.body.cargaHoraria)) {
       return res.status(400).json({ erro: 'Carga horária deve ser positiva' });
     }
     
@@ -520,6 +619,10 @@ app.put('/api/cursos/:id',
           erro: 'Instrutor deve ter role editor ou admin' 
         });
       }
+
+      if (req.usuario.role === 'editor' && req.body.instrutorId !== req.usuario.id) {
+        return res.status(403).json({ erro: 'Editor não pode transferir o curso para outro instrutor' });
+      }
     }
     
     dados.cursos[index] = { ...dados.cursos[index], ...req.body };
@@ -533,6 +636,15 @@ app.delete('/api/cursos/:id',
   verificarRole(['editor', 'admin']),
   (req, res) => {
     const dados = lerDados();
+    const curso = dados.cursos?.find(c => c.id === req.params.id);
+
+    if (!curso) {
+      return res.status(404).json({ erro: 'Curso não encontrado' });
+    }
+
+    if (!editorGerenciaCurso(req.usuario, curso)) {
+      return res.status(403).json({ erro: 'Editor só pode excluir cursos que gerencia' });
+    }
     
     // Verificar se tem aulas associadas
     const temAulas = dados.aulas?.some(a => a.cursoId === req.params.id);
@@ -592,6 +704,17 @@ app.get('/api/cursos/:cursoId/avaliacoes', (req, res) => {
 // ENDPOINTS - AULAS
 // ============================================
 
+// GET - Aulas dos cursos que o editor autenticado pode gerenciar
+app.get('/api/editor/aulas', verificarRole(['editor', 'admin']), (req, res) => {
+  const dados = lerDados();
+  const cursosGerenciados = req.usuario.role === 'admin'
+    ? (dados.cursos || []).map(c => c.id)
+    : (dados.cursos || [])
+      .filter(c => c.instrutorId === req.usuario.id)
+      .map(c => c.id);
+  res.json((dados.aulas || []).filter(a => cursosGerenciados.includes(a.cursoId)));
+});
+
 // GET - Listar aulas (todos autenticados)
 app.get('/api/aulas', (req, res) => {
   const dados = lerDados();
@@ -603,7 +726,7 @@ app.get('/api/aulas', (req, res) => {
       .map(c => c.id) || [];
     aulas = aulas.filter(a => cursosPublicados.includes(a.cursoId));
   }
-  
+
   res.json(aulas);
 });
 
@@ -640,19 +763,27 @@ app.post('/api/aulas',
     if (!curso) {
       return res.status(400).json({ erro: 'Curso não encontrado' });
     }
-    
+
+    if (!editorGerenciaCurso(req.usuario, curso)) {
+      return res.status(403).json({ erro: 'Editor só pode criar aulas nos cursos que gerencia' });
+    }
+
+    if (!textoValido(titulo)) {
+      return res.status(400).json({ erro: 'Título da aula é obrigatório' });
+    }
+
     if (ordem <= 0 || !Number.isInteger(ordem)) {
       return res.status(400).json({ erro: 'Ordem deve ser um número inteiro positivo' });
     }
     
-    if (duracaoMinutos <= 0) {
+    if (!numeroPositivo(duracaoMinutos)) {
       return res.status(400).json({ erro: 'Duração deve ser positiva' });
     }
     
     const novaAula = {
       id: 'aul' + Date.now() + Math.random().toString(36).substr(2, 4),
       cursoId,
-      titulo,
+      titulo: titulo.trim(),
       conteudo: conteudo || '',
       ordem,
       duracaoMinutos
@@ -675,15 +806,28 @@ app.put('/api/aulas/:id',
     if (index === -1 || index === undefined) {
       return res.status(404).json({ erro: 'Aula não encontrada' });
     }
-    
+
+    const aulaExistente = dados.aulas[index];
+    const cursoAtual = dados.cursos?.find(c => c.id === aulaExistente.cursoId);
+    if (!editorGerenciaCurso(req.usuario, cursoAtual)) {
+      return res.status(403).json({ erro: 'Editor só pode alterar aulas dos cursos que gerencia' });
+    }
+
     // Validações
+    if (req.body.titulo !== undefined) {
+      if (!textoValido(req.body.titulo)) {
+        return res.status(400).json({ erro: 'Título da aula é obrigatório' });
+      }
+      req.body.titulo = req.body.titulo.trim();
+    }
+
     if (req.body.ordem !== undefined) {
       if (req.body.ordem <= 0 || !Number.isInteger(req.body.ordem)) {
         return res.status(400).json({ erro: 'Ordem deve ser um número inteiro positivo' });
       }
     }
     
-    if (req.body.duracaoMinutos !== undefined && req.body.duracaoMinutos <= 0) {
+    if (req.body.duracaoMinutos !== undefined && !numeroPositivo(req.body.duracaoMinutos)) {
       return res.status(400).json({ erro: 'Duração deve ser positiva' });
     }
     
@@ -692,6 +836,9 @@ app.put('/api/aulas/:id',
       const curso = dados.cursos?.find(c => c.id === req.body.cursoId);
       if (!curso) {
         return res.status(400).json({ erro: 'Curso não encontrado' });
+      }
+      if (!editorGerenciaCurso(req.usuario, curso)) {
+        return res.status(403).json({ erro: 'Editor só pode vincular aulas aos cursos que gerencia' });
       }
     }
     
@@ -706,6 +853,17 @@ app.delete('/api/aulas/:id',
   verificarRole(['editor', 'admin']),
   (req, res) => {
     const dados = lerDados();
+    const aula = dados.aulas?.find(a => a.id === req.params.id);
+
+    if (!aula) {
+      return res.status(404).json({ erro: 'Aula não encontrada' });
+    }
+
+    const curso = dados.cursos?.find(c => c.id === aula.cursoId);
+    if (!editorGerenciaCurso(req.usuario, curso)) {
+      return res.status(403).json({ erro: 'Editor só pode excluir aulas dos cursos que gerencia' });
+    }
+
     dados.aulas = dados.aulas?.filter(a => a.id !== req.params.id) || [];
     salvarDados(dados);
     res.status(204).send();
@@ -725,6 +883,13 @@ app.get('/api/matriculas', (req, res) => {
   if (req.usuario.role === 'aluno') {
     matriculas = matriculas.filter(m => m.usuarioId === req.usuario.id);
   }
+
+  if (req.usuario.role === 'editor') {
+    const cursosGerenciados = dados.cursos
+      ?.filter(c => c.instrutorId === req.usuario.id)
+      .map(c => c.id) || [];
+    matriculas = matriculas.filter(m => cursosGerenciados.includes(m.cursoId));
+  }
   
   res.json(matriculas);
 });
@@ -741,6 +906,13 @@ app.get('/api/matriculas/:id', (req, res) => {
   // Aluno só vê suas próprias matrículas
   if (req.usuario.role === 'aluno' && matricula.usuarioId !== req.usuario.id) {
     return res.status(403).json({ erro: 'Acesso negado' });
+  }
+
+  if (req.usuario.role === 'editor') {
+    const curso = dados.cursos?.find(c => c.id === matricula.cursoId);
+    if (!editorGerenciaCurso(req.usuario, curso)) {
+      return res.status(403).json({ erro: 'Editor só pode consultar matrículas dos cursos que gerencia' });
+    }
   }
   
   res.json(matricula);
@@ -785,7 +957,7 @@ app.post('/api/matriculas',
       return res.status(200).json(matriculaExistente);
     }
     
-    if (progresso < 0 || progresso > 100) {
+    if (typeof progresso !== 'number' || !Number.isFinite(progresso) || progresso < 0 || progresso > 100) {
       return res.status(400).json({ erro: 'Progresso deve estar entre 0 e 100' });
     }
     
@@ -820,40 +992,89 @@ app.put('/api/matriculas/:id', (req, res) => {
   if (req.usuario.role === 'aluno' && matriculaExistente.usuarioId !== req.usuario.id) {
     return res.status(403).json({ erro: 'Acesso negado' });
   }
-  
-  // Validações
-  if (req.body.progresso !== undefined) {
-    if (req.body.progresso < 0 || req.body.progresso > 100) {
-      return res.status(400).json({ erro: 'Progresso deve estar entre 0 e 100' });
-    }
-    
-    // Atualizar status automaticamente se progresso for 100
-    if (req.body.progresso === 100) {
-      req.body.status = 'concluído';
-      if (!req.body.dataConclusao) {
-        req.body.dataConclusao = new Date().toISOString();
-      }
-    } else if (req.body.progresso < 100 && matriculaExistente.status !== 'concluído') {
-      req.body.status = 'em andamento';
+
+  if (req.usuario.role === 'editor') {
+    const curso = dados.cursos?.find(c => c.id === matriculaExistente.cursoId);
+    if (!editorGerenciaCurso(req.usuario, curso)) {
+      return res.status(403).json({ erro: 'Editor só pode atualizar matrículas dos cursos que gerencia' });
     }
   }
-  
-  if (req.body.status && !['em andamento', 'concluído'].includes(req.body.status)) {
+
+  if (req.body.usuarioId !== undefined || req.body.cursoId !== undefined) {
+    return res.status(400).json({ erro: 'Não é permitido alterar o usuário ou o curso da matrícula' });
+  }
+
+  const atualizacao = {};
+
+  // Validações
+  if (req.body.progresso !== undefined) {
+    if (typeof req.body.progresso !== 'number'
+      || !Number.isFinite(req.body.progresso)
+      || req.body.progresso < 0
+      || req.body.progresso > 100) {
+      return res.status(400).json({ erro: 'Progresso deve estar entre 0 e 100' });
+    }
+
+    atualizacao.progresso = req.body.progresso;
+
+    // Atualizar status automaticamente se progresso for 100
+    if (req.body.progresso === 100) {
+      atualizacao.status = 'concluído';
+      atualizacao.dataConclusao = new Date().toISOString();
+    } else if (req.body.progresso < 100 && matriculaExistente.status !== 'concluído') {
+      atualizacao.status = 'em andamento';
+    }
+  }
+
+  if (req.body.status !== undefined) {
+    if (!STATUS_MATRICULA_VALIDOS.includes(req.body.status)) {
+      return res.status(400).json({
+        erro: 'Status deve ser "em andamento" ou "concluído"'
+      });
+    }
+    atualizacao.status = req.body.status;
+  }
+
+  if (atualizacao.status && !STATUS_MATRICULA_VALIDOS.includes(atualizacao.status)) {
     return res.status(400).json({ 
       erro: 'Status deve ser "em andamento" ou "concluído"' 
     });
   }
-  
-  dados.matriculas[index] = { ...matriculaExistente, ...req.body };
+
+  dados.matriculas[index] = { ...matriculaExistente, ...atualizacao };
   salvarDados(dados);
   res.json(dados.matriculas[index]);
 });
 
-// DELETE - Remover matrícula (apenas admin)
-app.delete('/api/matriculas/:id', verificarRole(['admin']), (req, res) => {
+// DELETE - Cancelar matrícula (aluno proprietário ou admin)
+app.delete('/api/matriculas/:id', (req, res) => {
   const dados = lerDados();
+  const matricula = dados.matriculas?.find(m => m.id === req.params.id);
+
+  if (!matricula) {
+    return res.status(404).json({ erro: 'Matrícula não encontrada' });
+  }
+
+  const alunoProprietario = req.usuario.role === 'aluno'
+    && matricula.usuarioId === req.usuario.id;
+  const podeRemover = req.usuario.role === 'admin' || alunoProprietario;
+
+  if (!podeRemover) {
+    return res.status(403).json({ erro: 'Você não tem permissão para cancelar esta matrícula' });
+  }
+
+  if (alunoProprietario && matricula.status === 'concluído') {
+    return res.status(400).json({
+      erro: 'Matrículas concluídas fazem parte do histórico e não podem ser canceladas'
+    });
+  }
+
   dados.matriculas = dados.matriculas?.filter(m => m.id !== req.params.id) || [];
-  salvarDados(dados);
+
+  if (!salvarDados(dados)) {
+    return res.status(500).json({ erro: 'Não foi possível cancelar a matrícula' });
+  }
+
   res.status(204).send();
 });
 
@@ -866,9 +1087,17 @@ app.get('/api/usuarios/:usuarioId/matriculas', (req, res) => {
     return res.status(403).json({ erro: 'Acesso negado' });
   }
   
-  const matriculas = dados.matriculas?.filter(
+  let matriculas = dados.matriculas?.filter(
     m => m.usuarioId === req.params.usuarioId
   ) || [];
+
+  if (req.usuario.role === 'editor') {
+    const cursosGerenciados = dados.cursos
+      ?.filter(c => c.instrutorId === req.usuario.id)
+      .map(c => c.id) || [];
+    matriculas = matriculas.filter(m => cursosGerenciados.includes(m.cursoId));
+  }
+
   res.json(matriculas);
 });
 
@@ -879,7 +1108,16 @@ app.get('/api/usuarios/:usuarioId/matriculas', (req, res) => {
 // GET - Listar avaliações (todos autenticados)
 app.get('/api/avaliacoes', (req, res) => {
   const dados = lerDados();
-  res.json(dados.avaliacoes || []);
+  let avaliacoes = dados.avaliacoes || [];
+
+  if (req.usuario.role === 'editor') {
+    const cursosGerenciados = dados.cursos
+      ?.filter(c => c.instrutorId === req.usuario.id)
+      .map(c => c.id) || [];
+    avaliacoes = avaliacoes.filter(a => cursosGerenciados.includes(a.cursoId));
+  }
+
+  res.json(avaliacoes);
 });
 
 // GET - Buscar avaliação por ID
@@ -890,12 +1128,20 @@ app.get('/api/avaliacoes/:id', (req, res) => {
   if (!avaliacao) {
     return res.status(404).json({ erro: 'Avaliação não encontrada' });
   }
+
+  if (req.usuario.role === 'editor') {
+    const curso = dados.cursos?.find(c => c.id === avaliacao.cursoId);
+    if (!editorGerenciaCurso(req.usuario, curso)) {
+      return res.status(403).json({ erro: 'Editor só pode consultar avaliações dos cursos que gerencia' });
+    }
+  }
   
   res.json(avaliacao);
 });
 
 // POST - Criar avaliação (aluno com curso concluído)
 app.post('/api/avaliacoes',
+  verificarRole(['aluno', 'admin']),
   validarCampos(['usuarioId', 'cursoId', 'nota']),
   (req, res) => {
     const dados = lerDados();
@@ -904,6 +1150,11 @@ app.post('/api/avaliacoes',
     // Aluno só pode avaliar seus próprios cursos
     if (req.usuario.role === 'aluno' && usuarioId !== req.usuario.id) {
       return res.status(403).json({ erro: 'Acesso negado' });
+    }
+
+    const usuario = dados.usuarios?.find(u => u.id === usuarioId);
+    if (!usuario || usuario.role !== 'aluno') {
+      return res.status(400).json({ erro: 'Avaliação deve pertencer a um usuário com role aluno' });
     }
     
     // VALIDAÇÃO CRÍTICA: Só pode avaliar se curso estiver concluído
@@ -965,9 +1216,10 @@ app.put('/api/avaliacoes/:id', (req, res) => {
   }
   
   const avaliacaoExistente = dados.avaliacoes[index];
-  
-  // Aluno só pode atualizar suas próprias avaliações
-  if (req.usuario.role === 'aluno' && avaliacaoExistente.usuarioId !== req.usuario.id) {
+
+  const podeAtualizar = req.usuario.role === 'admin'
+    || (req.usuario.role === 'aluno' && avaliacaoExistente.usuarioId === req.usuario.id);
+  if (!podeAtualizar) {
     return res.status(403).json({ erro: 'Acesso negado' });
   }
   
