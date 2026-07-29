@@ -1,0 +1,248 @@
+{
+  "usuarios": [
+    {
+      "id": "u1a2b3",
+      "nome": "Camila Rocha",
+      "email": "camila.rocha@email.com",
+      "senha": "senha123",
+      "role": "aluno",
+      "ativo": true
+    },
+    {
+      "id": "u2c4d5",
+      "nome": "Carlos Mendes",
+      "email": "carlos.mendes@email.com",
+      "senha": "senha456",
+      "role": "editor",
+      "ativo": true
+    },
+    {
+      "id": "u3e6f7",
+      "nome": "Ana Silva",
+      "email": "ana.silva@email.com",
+      "senha": "senha789",
+      "role": "admin",
+      "ativo": true
+    },
+    {
+      "id": "u4g8h9",
+      "nome": "João Souza",
+      "email": "joao.souza@email.com",
+      "senha": "senha321",
+      "role": "aluno",
+      "ativo": true
+    },
+    {
+      "id": "u5i0j1",
+      "nome": "Mariana Costa",
+      "email": "mariana.costa@email.com",
+      "senha": "senha654",
+      "role": "aluno",
+      "ativo": false
+    }
+  ],
+  "categorias": [
+    {
+      "id": "cat1x2",
+      "nome": "Programação",
+      "descricao": "Cursos sobre linguagens, frameworks e boas práticas de desenvolvimento."
+    },
+    {
+      "id": "cat2y3",
+      "nome": "Design",
+      "descricao": "Cursos sobre design de interfaces, UX/UI e ferramentas criativas."
+    },
+    {
+      "id": "cat3z4",
+      "nome": "Marketing",
+      "descricao": "Cursos sobre marketing digital, SEO e estratégias de negócio."
+    },
+    {
+      "id": "cat4w5",
+      "nome": "Idiomas",
+      "descricao": "Cursos para aprendizado de idiomas e comunicação."
+    }
+  ],
+  "cursos": [
+    {
+      "id": "cur1y3",
+      "titulo": "Introdução ao JavaScript",
+      "descricao": "Fundamentos da linguagem JavaScript para iniciantes.",
+      "categoriaId": "cat1x2",
+      "instrutorId": "u2c4d5",
+      "status": "publicado",
+      "cargaHoraria": 20
+    },
+    {
+      "id": "cur2z4",
+      "titulo": "React Avançado",
+      "descricao": "Aprofunde seus conhecimentos em React com hooks, context API e performance.",
+      "categoriaId": "cat1x2",
+      "instrutorId": "u2c4d5",
+      "status": "publicado",
+      "cargaHoraria": 30
+    },
+    {
+      "id": "cur3w5",
+      "titulo": "UX/UI Design para Iniciantes",
+      "descricao": "Aprenda os fundamentos de experiência do usuário e design de interfaces.",
+      "categoriaId": "cat2y3",
+      "instrutorId": "u2c4d5",
+      "status": "rascunho",
+      "cargaHoraria": 15
+    },
+    {
+      "id": "cur4v6",
+      "titulo": "Photoshop Master",
+      "descricao": "Domine o Photoshop com técnicas profissionais de edição e manipulação.",
+      "categoriaId": "cat2y3",
+      "instrutorId": "u2c4d5",
+      "status": "publicado",
+      "cargaHoraria": 25
+    },
+    {
+      "id": "cur5u7",
+      "titulo": "Marketing Digital Completo",
+      "descricao": "Estratégias completas de marketing digital para impulsionar negócios.",
+      "categoriaId": "cat3z4",
+      "instrutorId": "u3e6f7",
+      "status": "publicado",
+      "cargaHoraria": 40
+    },
+    {
+      "id": "cur6t8",
+      "titulo": "Inglês para TI",
+      "descricao": "Curso de inglês focado em termos técnicos da área de tecnologia.",
+      "categoriaId": "cat4w5",
+      "instrutorId": "u3e6f7",
+      "status": "rascunho",
+      "cargaHoraria": 30
+    }
+  ],
+  "aulas": [
+    {
+      "id": "aul1z4",
+      "cursoId": "cur1y3",
+      "titulo": "Variáveis e Tipos de Dados",
+      "conteudo": "https://video.exemplo.com/aula1",
+      "ordem": 1,
+      "duracaoMinutos": 15
+    },
+    {
+      "id": "aul2w5",
+      "cursoId": "cur1y3",
+      "titulo": "Estruturas Condicionais",
+      "conteudo": "https://video.exemplo.com/aula2",
+      "ordem": 2,
+      "duracaoMinutos": 20
+    },
+    {
+      "id": "aul3v6",
+      "cursoId": "cur1y3",
+      "titulo": "Laços de Repetição",
+      "conteudo": "https://video.exemplo.com/aula3",
+      "ordem": 3,
+      "duracaoMinutos": 25
+    },
+    {
+      "id": "aul4u7",
+      "cursoId": "cur2z4",
+      "titulo": "Hooks Customizados",
+      "conteudo": "https://video.exemplo.com/aula4",
+      "ordem": 1,
+      "duracaoMinutos": 30
+    },
+    {
+      "id": "aul5t8",
+      "cursoId": "cur2z4",
+      "titulo": "Context API",
+      "conteudo": "https://video.exemplo.com/aula5",
+      "ordem": 2,
+      "duracaoMinutos": 25
+    },
+    {
+      "id": "aul6s9",
+      "cursoId": "cur4v6",
+      "titulo": "Ferramentas Básicas",
+      "conteudo": "https://video.exemplo.com/aula6",
+      "ordem": 1,
+      "duracaoMinutos": 20
+    },
+    {
+      "id": "aul7r0",
+      "cursoId": "cur4v6",
+      "titulo": "Camadas e Máscaras",
+      "conteudo": "https://video.exemplo.com/aula7",
+      "ordem": 2,
+      "duracaoMinutos": 30
+    },
+    {
+      "id": "aul8q1",
+      "cursoId": "cur5u7",
+      "titulo": "Introdução ao Marketing Digital",
+      "conteudo": "https://video.exemplo.com/aula8",
+      "ordem": 1,
+      "duracaoMinutos": 25
+    }
+  ],
+  "matriculas": [
+    {
+      "id": "mat1w5",
+      "usuarioId": "u1a2b3",
+      "cursoId": "cur1y3",
+      "dataMatricula": "2026-07-10T13:00:00Z",
+      "progresso": 60,
+      "status": "em andamento"
+    },
+    {
+      "id": "mat2x6",
+      "usuarioId": "u1a2b3",
+      "cursoId": "cur4v6",
+      "dataMatricula": "2026-07-15T10:30:00Z",
+      "progresso": 100,
+      "status": "concluído"
+    },
+    {
+      "id": "mat3y7",
+      "usuarioId": "u4g8h9",
+      "cursoId": "cur1y3",
+      "dataMatricula": "2026-07-20T09:15:00Z",
+      "progresso": 30,
+      "status": "em andamento"
+    },
+    {
+      "id": "mat4z8",
+      "usuarioId": "u4g8h9",
+      "cursoId": "cur5u7",
+      "dataMatricula": "2026-07-25T14:45:00Z",
+      "progresso": 0,
+      "status": "em andamento"
+    },
+    {
+      "id": "mat5a9",
+      "usuarioId": "u5i0j1",
+      "cursoId": "cur2z4",
+      "dataMatricula": "2026-07-28T16:20:00Z",
+      "progresso": 50,
+      "status": "em andamento"
+    }
+  ],
+  "avaliacoes": [
+    {
+      "id": "ava1v6",
+      "usuarioId": "u1a2b3",
+      "cursoId": "cur4v6",
+      "nota": 5,
+      "comentario": "Curso muito claro e direto ao ponto, recomendo!",
+      "data": "2026-07-20T18:45:00Z"
+    },
+    {
+      "id": "ava2w7",
+      "usuarioId": "u4g8h9",
+      "cursoId": "cur1y3",
+      "nota": 4,
+      "comentario": "Ótimo curso, mas poderia ter mais exemplos práticos.",
+      "data": "2026-07-22T11:30:00Z"
+    }
+  ]
+}
