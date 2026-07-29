@@ -33,29 +33,52 @@
   <main>
     <div class="container">
 
-      <h1 class="page-title">Meu Perfil</h1>
-      <p class="page-subtitle">Gerencie seus dados pessoais e acompanhe suas matrículas.</p>
+      <section class="profile-hero">
+        <div class="profile-hero__avatar" id="profile-hero-avatar" aria-hidden="true">MC</div>
+        <div class="profile-hero__content">
+          <span class="profile-hero__eyebrow">Minha conta</span>
+          <h1 class="page-title" id="profile-hero-name">Meu Perfil</h1>
+          <p class="page-subtitle">Gerencie seus dados pessoais e acompanhe sua jornada de aprendizado.</p>
+          <div class="profile-hero__meta">
+            <span id="profile-hero-role">Usuário</span>
+            <span class="profile-status"><i aria-hidden="true"></i> Conta ativa</span>
+          </div>
+        </div>
+        <div class="profile-hero__detail" aria-hidden="true">
+          <span>MC</span>
+          <small>Cursos</small>
+        </div>
+      </section>
 
-      <div class="dashboard-layout">
+      <div class="dashboard-layout profile-layout">
         <!-- ================= DADOS PESSOAIS ================= -->
-        <section class="card dashboard-section" aria-labelledby="profile-form-title">
-          <h2 class="section-title" id="profile-form-title">Dados pessoais</h2>
+        <section class="card dashboard-section profile-card" aria-labelledby="profile-form-title">
+          <div class="profile-section-heading">
+            <span class="profile-section-icon" aria-hidden="true">✦</span>
+            <div>
+              <h2 class="section-title" id="profile-form-title">Dados pessoais</h2>
+              <p>Mantenha suas informações de acesso atualizadas.</p>
+            </div>
+          </div>
 
           <div id="profile-alert" class="alert alert-success" role="status" hidden></div>
 
           <form id="profile-form" novalidate>
-            <div class="form-group">
-              <label for="profile-nome">Nome completo</label>
-              <input type="text" id="profile-nome" name="nome" required />
+            <div class="profile-main-fields">
+              <div class="form-group">
+                <label for="profile-nome">Nome completo</label>
+                <input type="text" id="profile-nome" name="nome" required />
+              </div>
+
+              <div class="form-group">
+                <label for="profile-email">E-mail</label>
+                <input type="email" id="profile-email" name="email" required />
+              </div>
             </div>
 
-            <div class="form-group">
-              <label for="profile-email">E-mail</label>
-              <input type="email" id="profile-email" name="email" required />
-            </div>
-
-            <fieldset>
-              <legend>Alterar senha</legend>
+            <fieldset class="profile-password">
+              <legend><span aria-hidden="true">⌁</span> Segurança da conta</legend>
+              <p class="profile-password__hint">Preencha esta seção somente se quiser trocar sua senha.</p>
 
               <div class="form-group">
                 <label for="profile-senha-atual">Senha atual</label>
@@ -75,13 +98,24 @@
               </div>
             </fieldset>
 
-            <button type="submit" class="btn btn-primary">Salvar alterações</button>
+            <button type="submit" class="btn profile-save-button">
+              Salvar alterações <span aria-hidden="true">→</span>
+            </button>
           </form>
         </section>
 
         <!-- ================= MINHAS MATRÍCULAS ================= -->
-        <section class="card dashboard-section" aria-labelledby="enrollments-title">
-          <h2 class="section-title" id="enrollments-title">Minhas matrículas</h2>
+        <section class="card dashboard-section profile-card enrollments-card" aria-labelledby="enrollments-title">
+          <div class="profile-section-heading profile-section-heading--between">
+            <div class="profile-section-heading__group">
+              <span class="profile-section-icon" aria-hidden="true">▶</span>
+              <div>
+                <h2 class="section-title" id="enrollments-title">Minhas matrículas</h2>
+                <p>Acompanhe seus cursos e continue aprendendo.</p>
+              </div>
+            </div>
+            <span class="results-count" id="profile-enrollment-count">0 cursos</span>
+          </div>
 
           <ul class="enrollment-list" id="enrollment-list">
             <!-- Itens de matrícula injetados via JS, ex:
@@ -96,11 +130,14 @@
             -->
           </ul>
 
-          <p id="enrollment-empty" class="empty-state" hidden>
-            Você ainda não está matriculado em nenhum curso.
-            <br />
-            <a href="catalogo.html" class="auth-link">Explorar catálogo</a>
-          </p>
+          <div id="enrollment-empty" class="profile-empty-state" hidden>
+            <span class="profile-empty-state__icon" aria-hidden="true">⌁</span>
+            <h3>Sua próxima jornada começa aqui</h3>
+            <p>Você ainda não possui cursos nesta conta. Explore o catálogo e encontre um novo aprendizado.</p>
+            <a href="catalogo.html" class="btn profile-explore-button">
+              Explorar catálogo <span aria-hidden="true">→</span>
+            </a>
+          </div>
         </section>
       </div>
 

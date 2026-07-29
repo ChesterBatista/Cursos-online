@@ -14,16 +14,28 @@ export function criarLinhasUsuarios(usuarios) {
 }
 
 function criarLinhaUsuario(usuario) {
+  const iniciais = usuario.nome
+    .split(' ')
+    .slice(0, 2)
+    .map(parte => parte.charAt(0))
+    .join('')
+    .toUpperCase();
   const statusBadge = usuario.ativo
     ? '<span class="badge badge-success">Ativo</span>'
     : '<span class="badge badge-danger">Inativo</span>';
 
   const acaoLabel = usuario.ativo ? 'Desativar' : 'Ativar';
+  const acaoClasse = usuario.ativo ? 'admin-action--deactivate' : 'admin-action--activate';
 
   return `
     <tr data-id="${usuario.id}">
-      <td>${usuario.nome}</td>
-      <td>${usuario.email}</td>
+      <td>
+        <div class="user-identity">
+          <span class="user-avatar" aria-hidden="true">${iniciais}</span>
+          <strong>${usuario.nome}</strong>
+        </div>
+      </td>
+      <td><a class="user-email" href="mailto:${usuario.email}">${usuario.email}</a></td>
       <td>
         <select class="role-select" data-id="${usuario.id}">
           <option value="aluno" ${usuario.role === 'aluno' ? 'selected' : ''}>Aluno</option>
@@ -33,7 +45,7 @@ function criarLinhaUsuario(usuario) {
       </td>
       <td>${statusBadge}</td>
       <td class="actions-cell">
-        <button type="button" class="btn btn-secondary btn-sm toggle-status-btn" data-id="${usuario.id}">
+        <button type="button" class="btn btn-sm toggle-status-btn admin-action ${acaoClasse}" data-id="${usuario.id}">
           ${acaoLabel}
         </button>
       </td>

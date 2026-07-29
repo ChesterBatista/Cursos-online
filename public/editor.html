@@ -33,31 +33,105 @@
   <main>
     <div class="container">
 
-      <h1 class="page-title">Dashboard do Editor</h1>
-      <p class="page-subtitle">Gerencie cursos, aulas e categorias da plataforma.</p>
+      <section class="editor-hero">
+        <div>
+          <span class="editor-hero__eyebrow">Visão geral da plataforma</span>
+          <h1 class="page-title">Dashboard do Editor</h1>
+          <p class="page-subtitle">Acompanhe o desempenho do catálogo e gerencie seus conteúdos.</p>
+        </div>
+        <div class="editor-hero__pulse">
+          <i aria-hidden="true"></i>
+          Sistema atualizado
+        </div>
+      </section>
+
+      <section class="editor-stats" aria-label="Indicadores da plataforma">
+        <article class="editor-stat editor-stat--courses">
+          <div class="editor-stat__icon" aria-hidden="true">▤</div>
+          <div class="editor-stat__content">
+            <span>Cursos cadastrados</span>
+            <strong class="editor-stat__value" id="editor-stat-courses">0</strong>
+            <small>Conteúdos no catálogo</small>
+          </div>
+        </article>
+        <article class="editor-stat editor-stat--published">
+          <div class="editor-stat__icon" aria-hidden="true">✓</div>
+          <div class="editor-stat__content">
+            <span>Cursos publicados</span>
+            <strong class="editor-stat__value" id="editor-stat-published">0</strong>
+            <small>Disponíveis aos alunos</small>
+          </div>
+        </article>
+        <article class="editor-stat editor-stat--lessons">
+          <div class="editor-stat__icon" aria-hidden="true">▶</div>
+          <div class="editor-stat__content">
+            <span>Aulas disponíveis</span>
+            <strong class="editor-stat__value" id="editor-stat-lessons">0</strong>
+            <small>Unidades de aprendizado</small>
+          </div>
+        </article>
+        <article class="editor-stat editor-stat--enrollments">
+          <div class="editor-stat__icon" aria-hidden="true">◎</div>
+          <div class="editor-stat__content">
+            <span>Matrículas</span>
+            <strong class="editor-stat__value" id="editor-stat-enrollments">0</strong>
+            <small>Inscrições em cursos</small>
+          </div>
+        </article>
+        <article class="editor-stat editor-stat--rating">
+          <div class="editor-stat__icon" aria-hidden="true">★</div>
+          <div class="editor-stat__content">
+            <span>Avaliação média</span>
+            <strong class="editor-stat__value" id="editor-stat-rating">0,0</strong>
+            <small>Experiência dos alunos</small>
+          </div>
+        </article>
+      </section>
+
+      <section class="editor-health" aria-label="Saúde do conteúdo">
+        <div class="editor-health__copy">
+          <span class="editor-health__icon" aria-hidden="true">↗</span>
+          <div>
+            <strong>Saúde do conteúdo</strong>
+            <p><span id="editor-published-percent">0%</span> do catálogo já está publicado.</p>
+          </div>
+        </div>
+        <div class="editor-health__progress" aria-hidden="true">
+          <div id="editor-published-bar"></div>
+        </div>
+        <div class="editor-health__hours">
+          <strong id="editor-total-hours">0h</strong>
+          <span>de conteúdo</span>
+        </div>
+      </section>
 
       <!-- ================= ABAS ================= -->
-      <div class="tabs" role="tablist" aria-label="Áreas de gestão">
+      <div class="tabs editor-tabs" role="tablist" aria-label="Áreas de gestão">
         <button type="button" class="tab-button active" id="tab-btn-cursos" role="tab" aria-selected="true" aria-controls="tab-cursos" data-tab="cursos">
-          Cursos
+          <span aria-hidden="true">▤</span> Cursos <b id="editor-tab-courses">0</b>
         </button>
         <button type="button" class="tab-button" id="tab-btn-aulas" role="tab" aria-selected="false" aria-controls="tab-aulas" data-tab="aulas">
-          Aulas
+          <span aria-hidden="true">▶</span> Aulas <b id="editor-tab-lessons">0</b>
         </button>
         <button type="button" class="tab-button" id="tab-btn-categorias" role="tab" aria-selected="false" aria-controls="tab-categorias" data-tab="categorias">
-          Categorias
+          <span aria-hidden="true">◆</span> Categorias <b id="editor-tab-categories">0</b>
         </button>
       </div>
 
       <!-- ================= PAINEL: CURSOS ================= -->
       <section class="tab-panel active" id="tab-cursos" role="tabpanel" aria-labelledby="tab-btn-cursos">
-        <div class="data-panel card">
-          <div class="panel-toolbar">
-            <div class="form-group">
+        <div class="data-panel card editor-data-panel">
+          <div class="editor-panel-heading">
+            <div><h2>Gestão de cursos</h2><p>Crie, publique e organize os cursos da plataforma.</p></div>
+            <span class="results-count" id="editor-course-results">0 resultados</span>
+          </div>
+          <div class="panel-toolbar editor-panel-toolbar">
+            <div class="form-group editor-search">
               <label for="cursos-busca" class="visually-hidden">Buscar curso</label>
+              <span aria-hidden="true">⌕</span>
               <input type="search" id="cursos-busca" placeholder="Buscar curso..." />
             </div>
-            <button type="button" id="curso-novo-btn" class="btn btn-primary">
+            <button type="button" id="curso-novo-btn" class="btn editor-create-button">
               + Novo curso
             </button>
           </div>
@@ -86,8 +160,11 @@
 
       <!-- ================= PAINEL: AULAS ================= -->
       <section class="tab-panel" id="tab-aulas" role="tabpanel" aria-labelledby="tab-btn-aulas" hidden>
-        <div class="data-panel card">
-          <div class="panel-toolbar">
+        <div class="data-panel card editor-data-panel">
+          <div class="editor-panel-heading">
+            <div><h2>Gestão de aulas</h2><p>Organize a sequência e a duração das aulas.</p></div>
+          </div>
+          <div class="panel-toolbar editor-panel-toolbar">
             <div class="form-group">
               <label for="aulas-curso-filtro" class="visually-hidden">Filtrar por curso</label>
               <select id="aulas-curso-filtro">
@@ -95,7 +172,7 @@
                 <!-- Opções injetadas via JS -->
               </select>
             </div>
-            <button type="button" id="aula-nova-btn" class="btn btn-primary">
+            <button type="button" id="aula-nova-btn" class="btn editor-create-button">
               + Nova aula
             </button>
           </div>
@@ -124,10 +201,12 @@
 
       <!-- ================= PAINEL: CATEGORIAS ================= -->
       <section class="tab-panel" id="tab-categorias" role="tabpanel" aria-labelledby="tab-btn-categorias" hidden>
-        <div class="data-panel card">
-          <div class="panel-toolbar">
-            <h2 class="section-title" style="margin-bottom: 0;">Categorias</h2>
-            <button type="button" id="categoria-nova-btn" class="btn btn-primary">
+        <div class="data-panel card editor-data-panel">
+          <div class="editor-panel-heading">
+            <div><h2>Gestão de categorias</h2><p>Mantenha o catálogo bem organizado e fácil de explorar.</p></div>
+          </div>
+          <div class="panel-toolbar editor-panel-toolbar editor-panel-toolbar--end">
+            <button type="button" id="categoria-nova-btn" class="btn editor-create-button">
               + Nova categoria
             </button>
           </div>

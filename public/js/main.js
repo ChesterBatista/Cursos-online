@@ -532,6 +532,14 @@ function configurarPerfil() {
   const usuario = auth.getUsuario();
   document.getElementById('profile-nome').value = usuario.nome;
   document.getElementById('profile-email').value = usuario.email;
+  document.getElementById('profile-hero-name').textContent = usuario.nome;
+  document.getElementById('profile-hero-role').textContent = usuario.role;
+  document.getElementById('profile-hero-avatar').textContent = usuario.nome
+    .split(' ')
+    .slice(0, 2)
+    .map(parte => parte.charAt(0))
+    .join('')
+    .toUpperCase();
 
   form.addEventListener('submit', tratarAtualizarPerfil);
   carregarMatriculas(usuario.id);
@@ -583,6 +591,13 @@ async function tratarAtualizarPerfil(evento) {
     const usuarioAtualizado = await usuariosAPI.atualizar(usuario.id, dados);
     auth.setUsuario({ ...usuario, ...usuarioAtualizado }, auth.getToken());
     exibirAlerta(alerta, 'Dados atualizados com sucesso!', false);
+    document.getElementById('profile-hero-name').textContent = usuarioAtualizado.nome;
+    document.getElementById('profile-hero-avatar').textContent = usuarioAtualizado.nome
+      .split(' ')
+      .slice(0, 2)
+      .map(parte => parte.charAt(0))
+      .join('')
+      .toUpperCase();
 
     document.getElementById('profile-senha-atual').value = '';
     document.getElementById('profile-senha-nova').value = '';
@@ -598,6 +613,8 @@ async function carregarMatriculas(usuarioId) {
 
   try {
     const matriculas = await matriculasAPI.listarPorUsuario(usuarioId);
+    const contador = document.getElementById('profile-enrollment-count');
+    contador.textContent = `${matriculas.length} ${matriculas.length === 1 ? 'curso' : 'cursos'}`;
 
     if (matriculas.length === 0) {
       lista.innerHTML = '';
@@ -633,14 +650,23 @@ function criarItemMatricula(matricula, curso) {
   return `
     <li class="enrollment-item">
       <div class="enrollment-item__info">
-        <h3>${curso.titulo}</h3>
+        <div>
+          <span class="enrollment-item__label">Curso online</span>
+          <h3>${curso.titulo}</h3>
+        </div>
         ${statusBadge}
       </div>
-      <div class="progress-bar">
-        <div class="progress-bar__fill" style="width: ${matricula.progresso}%"></div>
+      <div class="enrollment-progress">
+        <div class="enrollment-progress__label">
+          <span>Seu progresso</span>
+          <strong>${matricula.progresso}%</strong>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar__fill" style="width: ${matricula.progresso}%"></div>
+        </div>
       </div>
-      <div class="actions-cell">
-        <a href="curso.html?id=${curso.id}" class="btn btn-secondary btn-sm">Continuar curso</a>
+      <div class="actions-cell enrollment-actions">
+        <a href="curso.html?id=${curso.id}" class="btn enrollment-primary-action">Continuar curso <span aria-hidden="true">→</span></a>
         ${botaoProgresso}
       </div>
     </li>
@@ -681,9 +707,12 @@ async function configurarAdmin() {
   const vazio = document.getElementById('user-table-empty');
   const busca = document.getElementById('user-busca');
   const filtroRole = document.getElementById('user-filtro-role');
+  const filtroStatus = document.getElementById('user-filtro-status');
+  const limparFiltros = document.getElementById('user-filter-clear');
 
   try {
     todosUsuariosAdmin = await usuariosAPI.listar();
+    atualizarResumoAdmin();
     renderizarUsuarios(todosUsuariosAdmin);
   } catch (error) {
     vazio.textContent = 'Não foi possível carregar os usuários.';
@@ -693,13 +722,17 @@ async function configurarAdmin() {
   function aplicarFiltros() {
     const termo = busca.value.trim().toLowerCase();
     const role = filtroRole.value;
+    const status = filtroStatus.value;
     const filtrados = [];
 
     for (const usuario of todosUsuariosAdmin) {
       const combinaBusca = !termo || usuario.nome.toLowerCase().includes(termo) || usuario.email.toLowerCase().includes(termo);
       const combinaRole = !role || usuario.role === role;
+      const combinaStatus = !status
+        || (status === 'ativo' && usuario.ativo)
+        || (status === 'inativo' && !usuario.ativo);
 
-      if (combinaBusca && combinaRole) {
+      if (combinaBusca && combinaRole && combinaStatus) {
         filtrados.push(usuario);
       }
     }
@@ -709,6 +742,14 @@ async function configurarAdmin() {
 
   busca.addEventListener('input', aplicarFiltros);
   filtroRole.addEventListener('change', aplicarFiltros);
+  filtroStatus.addEventListener('change', aplicarFiltros);
+  limparFiltros.addEventListener('click', () => {
+    busca.value = '';
+    filtroRole.value = '';
+    filtroStatus.value = '';
+    aplicarFiltros();
+    busca.focus();
+  });
   tbody.addEventListener('change', tratarMudancaRole);
   tbody.addEventListener('click', tratarToggleStatus);
 }
@@ -716,6 +757,8 @@ async function configurarAdmin() {
 function renderizarUsuarios(usuarios) {
   const tbody = document.getElementById('user-table-body');
   const vazio = document.getElementById('user-table-empty');
+  const contador = document.getElementById('user-results-count');
+  contador.textContent = `${usuarios.length} ${usuarios.length === 1 ? 'resultado' : 'resultados'}`;
 
   if (usuarios.length === 0) {
     tbody.innerHTML = '';
@@ -725,6 +768,17 @@ function renderizarUsuarios(usuarios) {
 
   vazio.hidden = true;
   tbody.innerHTML = criarLinhasUsuarios(usuarios);
+}
+
+function atualizarResumoAdmin() {
+  const ativos = todosUsuariosAdmin.filter(usuario => usuario.ativo).length;
+  const alunos = todosUsuariosAdmin.filter(usuario => usuario.role === 'aluno').length;
+  const equipe = todosUsuariosAdmin.filter(usuario => usuario.role === 'editor' || usuario.role === 'admin').length;
+
+  document.getElementById('stat-total').textContent = todosUsuariosAdmin.length;
+  document.getElementById('stat-active').textContent = ativos;
+  document.getElementById('stat-students').textContent = alunos;
+  document.getElementById('stat-team').textContent = equipe;
 }
 
 async function tratarMudancaRole(evento) {
@@ -742,6 +796,8 @@ async function tratarMudancaRole(evento) {
     const usuario = buscarPorId(todosUsuariosAdmin, id);
     if (usuario) {
       usuario.role = novoRole;
+      atualizarResumoAdmin();
+      document.getElementById('user-busca').dispatchEvent(new Event('input'));
     }
   } catch (error) {
     window.alert(error.message || 'Não foi possível alterar o role.');
@@ -766,7 +822,8 @@ async function tratarToggleStatus(evento) {
   try {
     await usuariosAPI.atualizar(id, { ativo: !usuario.ativo });
     usuario.ativo = !usuario.ativo;
-    renderizarUsuarios(todosUsuariosAdmin);
+    atualizarResumoAdmin();
+    document.getElementById('user-busca').dispatchEvent(new Event('input'));
   } catch (error) {
     window.alert(error.message || 'Não foi possível alterar o status.');
   }
@@ -778,6 +835,8 @@ async function tratarToggleStatus(evento) {
 let cursosEditor = [];
 let categoriasEditor = [];
 let aulasEditor = [];
+let matriculasEditor = [];
+let avaliacoesEditor = [];
 let crudTipoAtual = null;
 let crudItemAtual = null;
 
@@ -829,20 +888,73 @@ async function configurarEditor() {
 }
 
 async function recarregarDadosEditor() {
-  const [cursos, categorias, aulas] = await Promise.all([
+  const [cursos, categorias, aulas, matriculas, avaliacoes] = await Promise.all([
     cursosAPI.listar(),
     categoriasAPI.listar(),
     aulasAPI.listar(),
+    matriculasAPI.listar(),
+    avaliacoesAPI.listar(),
   ]);
 
   cursosEditor = cursos;
   categoriasEditor = categorias;
   aulasEditor = aulas;
+  matriculasEditor = matriculas;
+  avaliacoesEditor = avaliacoes;
 
+  atualizarResumoEditor();
   renderizarCursosEditor(cursosEditor);
   renderizarCategoriasEditor(categoriasEditor);
   popularFiltroAulas();
   renderizarAulasEditor(aulasEditor);
+}
+
+function atualizarResumoEditor() {
+  const publicados = cursosEditor.filter(curso => curso.status === 'publicado').length;
+  const totalHoras = cursosEditor.reduce((total, curso) => total + Number(curso.cargaHoraria || 0), 0);
+  const mediaAvaliacao = avaliacoesEditor.length
+    ? avaliacoesEditor.reduce((total, avaliacao) => total + Number(avaliacao.nota || 0), 0) / avaliacoesEditor.length
+    : 0;
+  const percentualPublicado = cursosEditor.length
+    ? Math.round((publicados / cursosEditor.length) * 100)
+    : 0;
+
+  animarNumero('editor-stat-courses', cursosEditor.length);
+  animarNumero('editor-stat-published', publicados);
+  animarNumero('editor-stat-lessons', aulasEditor.length);
+  animarNumero('editor-stat-enrollments', matriculasEditor.length);
+  document.getElementById('editor-stat-rating').textContent = mediaAvaliacao.toFixed(1).replace('.', ',');
+  document.getElementById('editor-published-percent').textContent = `${percentualPublicado}%`;
+  document.getElementById('editor-published-bar').style.width = `${percentualPublicado}%`;
+  document.getElementById('editor-total-hours').textContent = `${totalHoras}h`;
+  document.getElementById('editor-tab-courses').textContent = cursosEditor.length;
+  document.getElementById('editor-tab-lessons').textContent = aulasEditor.length;
+  document.getElementById('editor-tab-categories').textContent = categoriasEditor.length;
+}
+
+function animarNumero(elementoId, valorFinal) {
+  const elemento = document.getElementById(elementoId);
+  const reduzirMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (reduzirMovimento || valorFinal === 0) {
+    elemento.textContent = valorFinal;
+    return;
+  }
+
+  const inicio = performance.now();
+  const duracao = 650;
+
+  function atualizar(agora) {
+    const progresso = Math.min((agora - inicio) / duracao, 1);
+    const suavizado = 1 - Math.pow(1 - progresso, 3);
+    elemento.textContent = Math.round(valorFinal * suavizado);
+
+    if (progresso < 1) {
+      requestAnimationFrame(atualizar);
+    }
+  }
+
+  requestAnimationFrame(atualizar);
 }
 
 // ---------- Abas ----------
@@ -875,6 +987,8 @@ function ativarAba(nomeAba) {
 function renderizarCursosEditor(cursos) {
   const tbody = document.getElementById('cursos-table-body');
   const vazio = document.getElementById('cursos-empty');
+  document.getElementById('editor-course-results').textContent =
+    `${cursos.length} ${cursos.length === 1 ? 'resultado' : 'resultados'}`;
 
   if (cursos.length === 0) {
     tbody.innerHTML = '';
