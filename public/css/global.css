@@ -132,6 +132,12 @@ body {
   flex-direction: column;
 }
 
+/* Garante que componentes com display próprio (como .btn) respeitem o
+   atributo HTML usado pelo JavaScript para ocultar estados da interface. */
+[hidden] {
+  display: none !important;
+}
+
 h1,
 h2,
 h3,

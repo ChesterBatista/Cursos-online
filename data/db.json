@@ -18,9 +18,9 @@
     },
     {
       "id": "u3e6f7",
-      "nome": "Ana Silva",
-      "email": "ana.silva@email.com",
-      "senha": "senha789",
+      "nome": "Chester Batista",
+      "email": "chester.batista@itlean.com.br",
+      "senha": "Ch82406541//",
       "role": "admin",
       "ativo": true
     },
@@ -117,6 +117,15 @@
       "instrutorId": "u3e6f7",
       "status": "rascunho",
       "cargaHoraria": 30
+    },
+    {
+      "id": "cur1785345843202jw4s",
+      "titulo": "Impressora",
+      "descricao": "salve ",
+      "categoriaId": "cat1x2",
+      "instrutorId": "u3e6f7",
+      "status": "publicado",
+      "cargaHoraria": 50
     }
   ],
   "aulas": [
@@ -224,6 +233,30 @@
       "cursoId": "cur2z4",
       "dataMatricula": "2026-07-28T16:20:00Z",
       "progresso": 50,
+      "status": "em andamento"
+    },
+    {
+      "id": "mat1785344345021phyw",
+      "usuarioId": "u1a2b3",
+      "cursoId": "cur2z4",
+      "dataMatricula": "2026-07-29T16:59:05.021Z",
+      "progresso": 0,
+      "status": "em andamento"
+    },
+    {
+      "id": "mat17853443583166qpm",
+      "usuarioId": "u1a2b3",
+      "cursoId": "cur5u7",
+      "dataMatricula": "2026-07-29T16:59:18.316Z",
+      "progresso": 0,
+      "status": "em andamento"
+    },
+    {
+      "id": "mat1785345999335e6f5",
+      "usuarioId": "u1a2b3",
+      "cursoId": "cur1785345843202jw4s",
+      "dataMatricula": "2026-07-29T17:26:39.335Z",
+      "progresso": 0,
       "status": "em andamento"
     }
   ],

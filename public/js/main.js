@@ -439,7 +439,9 @@ async function configurarMatricula(curso) {
 
   if (!matricula) {
     enrollButton.hidden = false;
-    enrollButton.addEventListener('click', () => matricularUsuario(usuario.id, curso.id));
+    enrollButton.addEventListener('click', () => {
+      matricularUsuario(usuario.id, curso.id, enrollButton, progressoWrapper, reviewSection);
+    });
     return;
   }
 
@@ -462,18 +464,32 @@ function buscarMatriculaPorCurso(matriculas, cursoId) {
   return null;
 }
 
-async function matricularUsuario(usuarioId, cursoId) {
+async function matricularUsuario(usuarioId, cursoId, enrollButton, progressoWrapper, reviewSection) {
+  const textoOriginal = enrollButton.textContent;
+  enrollButton.disabled = true;
+  enrollButton.textContent = 'Matriculando...';
+
   try {
-    await matriculasAPI.criar({
+    const matricula = await matriculasAPI.criar({
       usuarioId,
       cursoId,
       dataMatricula: new Date().toISOString(),
       progresso: 0,
       status: 'em andamento',
     });
-    window.location.reload();
+    enrollButton.hidden = true;
+    progressoWrapper.hidden = false;
+    document.getElementById('course-progress-value').textContent = `${matricula.progresso}%`;
+    document.getElementById('course-progress-fill').style.width = `${matricula.progresso}%`;
+
+    if (matricula.progresso === 100) {
+      reviewSection.hidden = false;
+      configurarFormularioAvaliacao(usuarioId, cursoId);
+    }
   } catch (error) {
     window.alert(error.message || 'Não foi possível concluir a matrícula.');
+    enrollButton.disabled = false;
+    enrollButton.textContent = textoOriginal;
   }
 }
 

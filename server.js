@@ -782,7 +782,7 @@ app.post('/api/matriculas',
       m => m.usuarioId === usuarioId && m.cursoId === cursoId
     );
     if (matriculaExistente) {
-      return res.status(400).json({ erro: 'Usuário já está matriculado neste curso' });
+      return res.status(200).json(matriculaExistente);
     }
     
     if (progresso < 0 || progresso > 100) {
