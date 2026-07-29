@@ -1,73 +1,175 @@
 /* ============================================
    AUTH.CSS
    Estilos específicos da tela de login / autenticação.
+   Layout split-screen inspirado no design do Figma
+   "Desktop sign up and login pages" (EditorM).
    ============================================ */
 
 .auth-body {
-  background: linear-gradient(160deg, var(--color-primary-light) 0%, var(--color-bg) 45%);
+  background: var(--color-surface);
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.auth-header {
-  background-color: transparent;
-  border-bottom: none;
-  position: static;
-}
-
-.auth-main {
+.auth-split {
   flex: 1;
+  display: flex;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ---------- Painel do formulário ---------- */
+.auth-panel-form {
+  flex: 1 1 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-6) var(--space-4);
+  padding: var(--space-6);
+  height: 100%;
+  overflow-y: auto;
 }
 
-.auth-card {
+.auth-form-wrap {
   width: 100%;
-  max-width: 420px;
-  padding: var(--space-8) var(--space-6);
-  box-shadow: var(--shadow-lg);
+  max-width: 404px;
 }
 
-.auth-card .page-title {
-  font-size: var(--fs-xl);
-}
-
-.auth-card .page-subtitle {
+.auth-logo {
   margin-bottom: var(--space-6);
 }
 
-.auth-form-options {
+.auth-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1.2;
+  margin-bottom: var(--space-2);
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--color-primary);
+}
+
+.auth-subtitle {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-6);
+}
+
+.auth-field {
+  margin-bottom: var(--space-5);
+}
+
+.auth-field-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-2);
+}
+
+.auth-field-header label {
+  margin: 0;
+}
+
+.auth-link-sm {
+  font-size: var(--fs-xs);
+}
+
+.auth-form-wrap .form-group {
+  margin-bottom: 0;
+  gap: var(--space-2);
+}
+
+.auth-form-wrap input[type="email"],
+.auth-form-wrap input[type="password"] {
+  border-color: #d9d9d9;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.auth-remember {
+  margin: var(--space-2) 0 var(--space-5);
   font-size: var(--fs-sm);
 }
 
-.checkbox-inline {
+.auth-submit {
+  background-color: var(--color-primary);
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.auth-submit:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.auth-divider {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
+  margin: var(--space-6) 0;
   color: var(--color-text-muted);
-  cursor: pointer;
+  font-size: var(--fs-sm);
 }
 
-.checkbox-inline input {
-  width: auto;
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
 }
 
-.auth-link {
-  color: var(--color-primary);
-  font-weight: 600;
+.auth-oauth {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
 }
 
-.auth-link:hover {
-  text-decoration: underline;
+.auth-oauth-btn {
+  flex: 1;
+  border-radius: 10px;
+  border-color: #d9d9d9;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
 }
 
 .auth-switch {
-  margin-top: var(--space-6);
   text-align: center;
   font-size: var(--fs-sm);
   color: var(--color-text-muted);
+}
+
+/* ---------- Painel de arte (imagem) ---------- */
+.auth-panel-art {
+  flex: 1 1 50%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 45px 0 0 45px;
+  background-color: #24421a;
+}
+
+.auth-art-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 900px) {
+  .auth-panel-art {
+    display: none;
+  }
+
+  .auth-panel-form {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-panel-form {
+    padding: var(--space-5) var(--space-4);
+  }
 }

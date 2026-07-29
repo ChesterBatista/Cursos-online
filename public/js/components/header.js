@@ -12,7 +12,7 @@ export function criarHeader(usuario) {
   return `
     <header class="site-header" id="site-header">
       <div class="container">
-        <a href="catalogo.html" class="logo">EduPlay</a>
+        <a href="catalogo.html" class="logo">MC Cursos</a>
 
         <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="main-nav">
           <span class="visually-hidden">Abrir menu</span>

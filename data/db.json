@@ -5,7 +5,7 @@
       "nome": "Camila Rocha",
       "email": "camila.rocha@email.com",
       "senha": "senha123",
-      "role": "aluno",
+      "role": "admin",
       "ativo": true
     },
     {
@@ -38,7 +38,7 @@
       "email": "mariana.costa@email.com",
       "senha": "senha654",
       "role": "aluno",
-      "ativo": false
+      "ativo": true
     }
   ],
   "categorias": [
