@@ -138,4 +138,28 @@ cursos-online/
 └── server.js
 
 
-oi chester
+# 📚 Plataforma de Cursos Online
+
+Plataforma educacional com sistema de roles (aluno, editor, admin) e API RESTful.
+
+---
+
+## 🚀 Como Executar
+
+### Pré-requisitos
+- Node.js (v14+)
+- npm
+
+### Instalação
+```bash
+# Clone o repositório
+git clone <url-do-repositorio>
+
+# Entre na pasta
+cd Cursos-online
+
+# Instale as dependências
+npm install
+
+# Rode o servidor
+npm run server

@@ -1,0 +1,73 @@
+/* ============================================
+   AUTH.CSS
+   Estilos específicos da tela de login / autenticação.
+   ============================================ */
+
+.auth-body {
+  background: linear-gradient(160deg, var(--color-primary-light) 0%, var(--color-bg) 45%);
+}
+
+.auth-header {
+  background-color: transparent;
+  border-bottom: none;
+  position: static;
+}
+
+.auth-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--space-4);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-8) var(--space-6);
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-card .page-title {
+  font-size: var(--fs-xl);
+}
+
+.auth-card .page-subtitle {
+  margin-bottom: var(--space-6);
+}
+
+.auth-form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+  font-size: var(--fs-sm);
+}
+
+.checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.checkbox-inline input {
+  width: auto;
+}
+
+.auth-link {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-switch {
+  margin-top: var(--space-6);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}

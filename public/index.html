@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar | Plataforma de Cursos Online</title>
+
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body class="auth-body">
+
+  <!-- ================= HEADER ================= -->
+  <header class="site-header auth-header">
+    <div class="container">
+      <a href="index.html" class="logo">EduPlay</a>
+    </div>
+  </header>
+
+  <!-- ================= MAIN ================= -->
+  <main class="auth-main">
+    <section class="auth-card card" aria-labelledby="login-title">
+      <h1 id="login-title" class="page-title">Bem-vindo de volta</h1>
+      <p class="page-subtitle">Entre com sua conta para acessar seus cursos.</p>
+
+      <!-- Alerta de erro de autenticação, controlado via JS -->
+      <div id="login-alert" class="alert alert-error" role="alert" hidden></div>
+
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            autocomplete="email"
+            placeholder="voce@email.com"
+            required
+          />
+          <span class="form-error" id="email-error"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="senha">Senha</label>
+          <input
+            type="password"
+            id="senha"
+            name="senha"
+            autocomplete="current-password"
+            placeholder="••••••••"
+            required
+          />
+          <span class="form-error" id="senha-error"></span>
+        </div>
+
+        <div class="auth-form-options">
+          <label class="checkbox-inline">
+            <input type="checkbox" id="lembrar" name="lembrar" />
+            Lembrar de mim
+          </label>
+          <a href="#" id="forgot-password-link" class="auth-link">Esqueci minha senha</a>
+        </div>
+
+        <button type="submit" id="login-submit" class="btn btn-primary btn-block">
+          Entrar
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        Ainda não tem conta?
+        <a href="#" id="register-link" class="auth-link">Criar conta</a>
+      </p>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container">
+      <span>&copy; 2026 EduPlay. Todos os direitos reservados.</span>
+      <nav aria-label="Links do rodapé">
+        <a href="#">Termos de uso</a>
+        <a href="#">Privacidade</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
